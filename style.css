@@ -1,0 +1,783 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    color: white;
+    margin-bottom: 40px;
+    padding: 20px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+header p {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.info-nisab {
+    background: rgba(255,255,255,0.95);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.info-nisab h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.nisab-detail {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.nisab-item {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.nisab-item .label {
+    font-size: 0.9em;
+    opacity: 0.9;
+    margin-bottom: 5px;
+}
+
+.nisab-item .value {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.zakat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.zakat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 3px solid transparent;
+}
+
+.zakat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-color: #667eea;
+}
+
+.zakat-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.zakat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+.icon-maal { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+}
+
+.icon-pertanian { 
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+}
+
+.icon-peternakan { 
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+}
+
+.zakat-card h3 {
+    color: #2d3748;
+    font-size: 1.3em;
+    margin-bottom: 5px;
+}
+
+.zakat-badge {
+    display: inline-block;
+    background: #edf2f7;
+    color: #667eea;
+    font-size: 0.75em;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.zakat-card p {
+    color: #718096;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+@keyframes slideUp {
+    from { 
+        transform: translateY(50px); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateY(0); 
+        opacity: 1; 
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 25px;
+}
+
+.modal-header h2 {
+    color: #2d3748;
+    font-size: 1.6em;
+    flex: 1;
+}
+
+.close-btn {
+    background: #edf2f7;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    color: #718096;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: #e2e8f0;
+    color: #2d3748;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #4a5568;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1em;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Input readonly (untuk harga saham auto-fetch) */
+.form-group input[readonly] {
+    background: #f7fafc;
+    cursor: not-allowed;
+    color: #4a5568;
+}
+
+.info-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
+.nisab-info {
+    background: #f7fafc;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.nisab-info p {
+    color: #4a5568;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.nisab-info strong {
+    color: #667eea;
+}
+
+.btn-hitung {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-hitung:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-hitung:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.result-box {
+    margin-top: 25px;
+    padding: 25px;
+    border-radius: 15px;
+    animation: slideUp 0.3s ease;
+}
+
+.result-wajib {
+    background: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);
+    color: white;
+}
+
+.result-belum {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.result-box h3 {
+    font-size: 1.4em;
+    margin-bottom: 15px;
+}
+
+.result-detail {
+    background: rgba(255,255,255,0.2);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.result-detail p {
+    margin-bottom: 8px;
+    font-size: 1em;
+}
+
+.result-amount {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+footer {
+    text-align: center;
+    color: white;
+    padding: 20px;
+    margin-top: 40px;
+    opacity: 0.9;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: white;
+    font-size: 1.2em;
+}
+
+/* Realtime indicator */
+.realtime-badge {
+    display: inline-block;
+    background: #48bb78;
+    color: white;
+    font-size: 0.75em;
+    padding: 3px 8px;
+    border-radius: 8px;
+    margin-left: 8px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* ==========================================
+   ENHANCED FORM STYLES
+   ========================================== */
+
+/* Periode Selector (Radio buttons) - juga dipakai untuk Mode Selector di Saham */
+.periode-selector {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    background: #f7fafc;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.periode-selector .radio-label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+}
+
+.periode-selector .radio-label:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.periode-selector input[type="radio"] {
+    margin-right: 8px;
+    width: auto;
+}
+
+.periode-selector input[type="radio"]:checked + span {
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* Modern browser support */
+.periode-selector .radio-label:has(input:checked) {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+/* Fallback for older browsers */
+@supports not (selector(:has(input:checked))) {
+    .periode-selector input[type="radio"]:checked + span {
+        color: #667eea;
+        font-weight: 600;
+    }
+}
+
+/* Form Section */
+.form-section {
+    background: #f7fafc;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.form-section h4 {
+    color: #667eea;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+}
+
+/* Total Display */
+.total-display {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 0.95em;
+    color: #4a5568;
+    border-left: 4px solid #667eea;
+}
+
+.total-display strong {
+    color: #667eea;
+    font-size: 1.1em;
+    margin-left: 8px;
+}
+
+.total-display small {
+    display: block;
+    font-size: 0.85em;
+    color: #718096;
+    margin-top: 5px;
+}
+
+.total-display-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 1.05em;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.total-display-primary strong {
+    color: white;
+    font-size: 1.3em;
+}
+
+.total-display-primary small {
+    color: rgba(255,255,255,0.9);
+}
+
+/* Checkbox Group */
+.checkbox-group {
+    background: #f7fafc;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.checkbox-group p {
+    color: #4a5568;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.checkbox-label:hover {
+    background: #f0f4ff;
+    border-color: #e2e8f0;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.checkbox-label span {
+    color: #4a5568;
+    font-size: 0.95em;
+}
+
+.checkbox-label:has(input:checked) {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-color: #667eea;
+}
+
+.checkbox-label:has(input:checked) span {
+    color: #667eea;
+    font-weight: 500;
+}
+
+/* Info Highlight */
+.info-highlight {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.info-highlight p {
+    color: #4a5568;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.info-highlight strong {
+    color: #667eea;
+}
+
+/* ==========================================
+   STOCK FORM SPECIFIC STYLES - NEW
+   ========================================== */
+
+/* Container untuk mode lembar dan manual */
+#mode-lembar-container,
+#mode-manual-container {
+    transition: all 0.3s ease;
+}
+
+/* Stock price badge positioning */
+.form-group [id$="-badge"] {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75em;
+}
+
+/* Input dengan badge (relative positioning untuk parent) */
+.form-group > div[style*="position: relative"] {
+    position: relative;
+}
+
+/* Stock price input dengan background abu-abu */
+input[id="harga-per-lembar"][readonly] {
+    background: #f7fafc !important;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+/* Loading state untuk input harga */
+input[value="Loading..."] {
+    color: #718096;
+    font-style: italic;
+}
+
+/* Error state untuk input harga */
+input[value*="Gagal"] {
+    color: #e53e3e;
+    background: #fff5f5 !important;
+}
+
+/* ==========================================
+   SELECT & DATALIST STYLING
+   ========================================== */
+
+/* Select Dropdown Styling */
+select {
+    background-color: white;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 40px;
+}
+
+/* Datalist untuk autocomplete saham */
+input[list] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 40px;
+}
+
+/* ==========================================
+   SCROLLBAR & MISC
+   ========================================== */
+
+/* Scrollbar untuk modal */
+.modal::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modal::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+    background: #667eea;
+}
+
+/* Input number tanpa spinner */
+input[type="text"]::-webkit-inner-spin-button,
+input[type="text"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.8em;
+    }
+    
+    .zakat-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal {
+        width: 95%;
+        padding: 20px;
+        max-height: 85vh;
+    }
+    
+    .periode-selector {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .nisab-detail {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-section h4 {
+        font-size: 1em;
+    }
+    
+    .total-display {
+        font-size: 0.9em;
+    }
+    
+    .result-amount {
+        font-size: 1.6em;
+    }
+    
+    /* Stock badge positioning untuk mobile */
+    .form-group [id$="-badge"] {
+        font-size: 0.7em;
+        padding: 2px 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 1.5em;
+    }
+    
+    .modal {
+        padding: 15px;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.3em;
+    }
+    
+    .zakat-card {
+        padding: 20px;
+    }
+    
+    .zakat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    
+    /* Form adjustments untuk layar kecil */
+    .periode-selector .radio-label {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    
+    .total-display strong {
+        font-size: 1em;
+    }
+    
+    .total-display-primary strong {
+        font-size: 1.1em;
+    }
+}
+
+/* ==========================================
+   UTILITY CLASSES
+   ========================================== */
+
+/* Hidden by default (untuk container switching) */
+.hidden {
+    display: none !important;
+}
+
+/* Fade in animation */
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Loading spinner (jika diperlukan) */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

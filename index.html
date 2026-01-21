@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Zakat Maal - Hitung Zakat Anda</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+    
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Kalkulator Zakat Maal</h1>
+            <p>Hitung zakat Anda dengan mudah dan akurat - Dengan harga realtime</p>
+        </header>
+
+        <div class="info-nisab">
+            <h3>📊 Informasi Nisab Hari Ini (Realtime)</h3>
+            <div class="nisab-detail">
+                <div class="nisab-item">
+                    <div class="label">Harga Emas/gram</div>
+                    <div class="value" id="harga-emas">Loading...</div>
+                </div>
+                <div class="nisab-item">
+                    <div class="label">Nisab Emas (85g)</div>
+                    <div class="value" id="nisab-rupiah">Loading...</div>
+                </div>
+                <div class="nisab-item">
+                    <div class="label">Update Terakhir</div>
+                    <div class="value" id="tanggal-update">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            ⏳ Memuat data zakat...
+        </div>
+
+        <div id="zakat-container" class="zakat-grid" style="display: none;">
+            <!-- Cards akan di-generate oleh JavaScript -->
+        </div>
+
+        <footer>
+            <p>© 2026 Kalkulator Zakat - Untuk memudahkan menunaikan kewajiban zakat</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Data nisab berdasarkan harga emas & crypto terkini</p>
+        </footer>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-title">Hitung Zakat</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+
+            <!-- 
+                Modal content akan di-generate oleh JavaScript di sini
+                Semua form (Penghasilan, Perdagangan, Saham, Emas/Perak, Crypto, Peternakan, Pertanian)
+                dibuat secara dinamis oleh fungsi-fungsi render di script.js
+            -->
+            <div id="modal-content-container"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
