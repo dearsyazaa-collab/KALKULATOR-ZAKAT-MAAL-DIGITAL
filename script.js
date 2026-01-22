@@ -1,13 +1,13 @@
 // ==========================================
-// KALKULATOR ZAKAT MAAL - SCRIPT.JS FULL
-// Version 2.0 - With Enhanced Stock Zakat
+// KALKULATOR ZAKAT MAAL - SCRIPT.JS FIXED
+// Version 2.1 - Fixed Stock Price Fetching
 // ==========================================
 
 // KONFIGURASI SUPABASE
-const supabaseClient = window.supabase.createClient(
-    'https://ynsyiesajoggykqybqsn.supabase.co', 
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inluc3lpZXNham9nZ3lrcXlicXNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0MzUzMTIsImV4cCI6MjA4NDAxMTMxMn0.HhTn3wclE5DRdfEpynl2YFI2O8_qO7cUSZ4jrezXFbQ'
-);
+const SUPABASE_URL = 'https://ynsyiesajoggykqybqsn.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inluc3lpZXNham9nZ3lrcXlicXNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0MzUzMTIsImV4cCI6MjA4NDAxMTMxMn0.HhTn3wclE5DRdfEpynl2YFI2O8_qO7cUSZ4jrezXFbQ';
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentZakat = null;
 let hargaEmasTerbaru = 0;
@@ -63,14 +63,14 @@ async function fetchRealtimeGoldPrice() {
         });
         
         if (!response.ok) {
-            throw new Error(`GoldAPI error: ${response.status}`);
+            console.warn(`⚠️ GoldAPI returned ${response.status}, using fallback`);
+            return await fallbackGoldPrice();
         }
         
         const data = await response.json();
         
-        if (!data || data.error) {
-            console.error('GoldAPI error:', data);
-            console.log('⚠️ Response error, menggunakan fallback');
+        if (!data || data.error || !data.price) {
+            console.warn('⚠️ GoldAPI returned invalid response, using fallback');
             return await fallbackGoldPrice();
         }
         
@@ -79,7 +79,7 @@ async function fetchRealtimeGoldPrice() {
         if (!priceUSDPerGram || typeof priceUSDPerGram !== 'number' || isNaN(priceUSDPerGram)) {
             const pricePerOunce = data.price;
             if (!pricePerOunce || typeof pricePerOunce !== 'number' || isNaN(pricePerOunce)) {
-                console.error('Invalid GoldAPI response:', data);
+                console.warn('⚠️ Invalid GoldAPI price data, using fallback');
                 return await fallbackGoldPrice();
             }
             priceUSDPerGram = pricePerOunce / 31.1035;
@@ -89,12 +89,11 @@ async function fetchRealtimeGoldPrice() {
         const priceIDRPerGram = Math.round(priceUSDPerGram * KURS_USD_TO_IDR);
         
         if (isNaN(priceIDRPerGram) || priceIDRPerGram <= 0) {
-            console.error('Invalid calculated price:', priceIDRPerGram);
+            console.warn('⚠️ Invalid calculated gold price, using fallback');
             return await fallbackGoldPrice();
         }
         
         console.log(`✅ Harga emas real-time dari GoldAPI: ${priceIDRPerGram}/gram`);
-        console.log(`   Kurs USD/IDR: ${KURS_USD_TO_IDR} | Update: ${new Date(data.timestamp * 1000).toLocaleString()}`);
         
         await supabaseClient.from('harga_nisab').insert({
             harga_emas_per_gram: priceIDRPerGram,
@@ -107,7 +106,7 @@ async function fetchRealtimeGoldPrice() {
         return priceIDRPerGram;
         
     } catch (error) {
-        console.error('Error fetching from GoldAPI:', error);
+        console.warn(`⚠️ GoldAPI fetch failed: ${error.message}, using fallback`);
         return await fallbackGoldPrice();
     }
 }
@@ -217,94 +216,95 @@ async function fetchCryptoPrices() {
 }
 
 // ==========================================
-// 📊 STOCK PRICE FETCHING - NEW FEATURE
+// 📊 STOCK PRICE FETCHING - FIXED VERSION
 // ==========================================
 
 /**
- * Fetch Stock Price dengan 3-tier fallback:
- * 1. Alpha Vantage API
- * 2. Yahoo Finance API (backup)
- * 3. Database Supabase (fallback)
+ * Fetch Stock Price dengan 2-tier fallback:
+ * 1. Supabase Edge Function (PRIORITAS UTAMA - menghindari CORS)
+ * 2. Database Supabase (fallback jika Edge Function gagal)
+ * 
+ * PENTING: TIDAK langsung call Yahoo/Alpha Vantage dari browser (CORS blocked)
  */
 async function fetchStockPrice(stockCode) {
     console.log(`📊 Fetching price for ${stockCode}...`);
     
-    // TIER 1: Alpha Vantage API
+    // ============================================
+    // TIER 1: Supabase Edge Function (PRIORITAS)
+    // Edge Function berjalan di server, tidak kena CORS
+    // ============================================
     try {
-        const ALPHAVANTAGE_KEY = 'HW09LSN290UU2NGG';
-        const symbol = `${stockCode}.JK`; // Jakarta Stock Exchange
+        console.log(`🔄 Trying Supabase Edge Function for ${stockCode}...`);
         
         const response = await fetch(
-            `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHAVANTAGE_KEY}`
+            `${SUPABASE_URL}/functions/v1/stock-price`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                },
+                body: JSON.stringify({ stock: stockCode })
+            }
         );
         
-        if (!response.ok) throw new Error('Alpha Vantage request failed');
+        // Log response status untuk debugging
+        console.log(`📡 Edge Function response status: ${response.status}`);
         
-        const data = await response.json();
-        
-        if (data['Global Quote'] && data['Global Quote']['05. price']) {
-            const priceUSD = parseFloat(data['Global Quote']['05. price']);
-            const KURS_USD_TO_IDR = 16200;
-            const priceIDR = Math.round(priceUSD * KURS_USD_TO_IDR);
-            
-            console.log(`✅ Alpha Vantage: ${stockCode} = Rp ${priceIDR}`);
-            
-            // Update database cache
-            await updateStockPriceCache(stockCode, priceIDR, 'Alpha Vantage API', true);
-            
-            return priceIDR;
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.warn(`⚠️ Edge Function failed (${response.status}): ${errorText}`);
+            throw new Error(`Edge Function error: ${response.status}`);
         }
         
-        throw new Error('Invalid Alpha Vantage response');
-        
-    } catch (error) {
-        console.warn(`⚠️ Alpha Vantage failed for ${stockCode}:`, error.message);
-    }
-    
-    // TIER 2: Yahoo Finance API (backup)
-    try {
-        const symbol = `${stockCode}.JK`;
-        const response = await fetch(
-            `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`
-        );
-        
-        if (!response.ok) throw new Error('Yahoo Finance request failed');
-        
         const data = await response.json();
+        console.log(`📦 Edge Function response:`, data);
         
-        if (data.chart?.result?.[0]?.meta?.regularMarketPrice) {
-            const priceIDR = Math.round(data.chart.result[0].meta.regularMarketPrice);
-            
-            console.log(`✅ Yahoo Finance: ${stockCode} = Rp ${priceIDR}`);
+        if (data && data.price && typeof data.price === 'number' && data.price > 0) {
+            console.log(`✅ Edge Function SUCCESS: ${stockCode} = Rp ${data.price.toLocaleString('id-ID')}`);
             
             // Update database cache
-            await updateStockPriceCache(stockCode, priceIDR, 'Yahoo Finance API', true);
+            await updateStockPriceCache(stockCode, data.price, 'Supabase Edge Function (Yahoo)', true);
             
-            return priceIDR;
+            return data.price;
         }
         
-        throw new Error('Invalid Yahoo Finance response');
+        // Jika response valid tapi price tidak ada
+        if (data && data.error) {
+            console.warn(`⚠️ Edge Function returned error: ${data.error}`);
+        }
+        
+        throw new Error('Invalid Edge Function response - no valid price');
         
     } catch (error) {
-        console.warn(`⚠️ Yahoo Finance failed for ${stockCode}:`, error.message);
+        console.warn(`⚠️ Edge Function failed for ${stockCode}:`, error.message);
     }
     
-    // TIER 3: Database Fallback
+    // ============================================
+    // TIER 2: Database Fallback
+    // Gunakan harga terakhir yang tersimpan
+    // ============================================
     try {
+        console.log(`🔄 Trying database fallback for ${stockCode}...`);
+        
         const { data, error } = await supabaseClient
             .from('stock_prices')
-            .select('price_per_share, last_updated')
+            .select('price_per_share, last_updated, source')
             .eq('stock_code', stockCode)
             .single();
         
-        if (error) throw error;
+        if (error) {
+            console.warn(`⚠️ Database query error:`, error.message);
+            throw error;
+        }
         
         if (data && data.price_per_share) {
+            const lastUpdated = new Date(data.last_updated);
             const daysSinceUpdate = Math.round(
-                (Date.now() - new Date(data.last_updated)) / (1000 * 60 * 60 * 24)
+                (Date.now() - lastUpdated) / (1000 * 60 * 60 * 24)
             );
             
-            console.log(`⚠️ Using database fallback: ${stockCode} = Rp ${data.price_per_share} (${daysSinceUpdate} hari lalu)`);
+            console.log(`⚠️ Using database fallback: ${stockCode} = Rp ${data.price_per_share.toLocaleString('id-ID')} (${daysSinceUpdate} hari lalu, source: ${data.source})`);
             
             return data.price_per_share;
         }
@@ -312,8 +312,10 @@ async function fetchStockPrice(stockCode) {
         throw new Error('Stock not found in database');
         
     } catch (error) {
-        console.error(`❌ All methods failed for ${stockCode}:`, error);
-        return 0; // Return 0 jika semua gagal
+        console.error(`❌ All methods failed for ${stockCode}:`, error.message);
+        
+        // Return 0 dan tampilkan pesan ke user
+        return 0;
     }
 }
 
@@ -328,6 +330,8 @@ async function updateStockPriceCache(stockCode, price, source, isRealtime) {
             .eq('stock_code', stockCode)
             .maybeSingle();
         
+        const stockInfo = indonesianStocks.find(s => s.code === stockCode);
+        
         if (existing) {
             await supabaseClient
                 .from('stock_prices')
@@ -339,9 +343,6 @@ async function updateStockPriceCache(stockCode, price, source, isRealtime) {
                 })
                 .eq('stock_code', stockCode);
         } else {
-            // Get stock name from indonesianStocks array
-            const stockInfo = indonesianStocks.find(s => s.code === stockCode);
-            
             await supabaseClient
                 .from('stock_prices')
                 .insert({
@@ -353,7 +354,7 @@ async function updateStockPriceCache(stockCode, price, source, isRealtime) {
                 });
         }
         
-        console.log(`💾 Stock price cached: ${stockCode}`);
+        console.log(`💾 Stock price cached: ${stockCode} = Rp ${price.toLocaleString('id-ID')}`);
     } catch (error) {
         console.error('Error updating stock cache:', error);
     }
@@ -492,21 +493,11 @@ function openModal(zakat) {
     modalContent.innerHTML = '';
     
     // URUTAN CHECKING YANG BENAR:
-    // 1. Penghasilan (periode)
-    // 2. SAHAM (harus sebelum perdagangan!) ← FIX DI SINI
-    // 3. Perdagangan (breakdown)
-    // 4. Peternakan
-    // 5. Emas/Perak
-    // 6. Crypto
-    // 7. Pertanian
-    
     if (zakat.support_periode) {
         renderFormPenghasilan();
     } else if (zakat.nama.includes('Saham')) {
-        // CHECK SAHAM LEBIH DULU (sebelum perdagangan)
         renderFormSaham();
     } else if (zakat.support_breakdown && zakat.unit_input === 'rupiah') {
-        // Perdagangan di-check setelah Saham
         renderFormPerdagangan();
     } else if (zakat.kategori === 'Peternakan') {
         renderFormPeternakan(zakat);
@@ -932,7 +923,7 @@ function autoCalculatePerdagangan() {
 }
 
 // ==========================================
-// 📊 AUTO CALCULATE SAHAM - ENHANCED
+// 📊 AUTO CALCULATE SAHAM - FIXED
 // ==========================================
 
 async function loadStockData() {
@@ -949,17 +940,17 @@ async function loadStockData() {
     const badge = document.getElementById('stock-price-badge');
     
     priceInput.value = 'Loading...';
-    badge.innerHTML = '<span class="realtime-badge" style="position: static; margin: 0;">⏳</span>';
+    badge.innerHTML = '<span class="spinner"></span>';
     
-    // Fetch price
+    // Fetch price via Edge Function
     const price = await fetchStockPrice(stockCode);
     
     if (price > 0) {
         priceInput.value = price.toLocaleString('id-ID');
         badge.innerHTML = '<span class="realtime-badge" style="position: static; margin: 0;">LIVE</span>';
     } else {
-        priceInput.value = 'Gagal memuat';
-        badge.textContent = '❌';
+        priceInput.value = 'Harga tidak tersedia';
+        badge.innerHTML = '<span style="color: #e53e3e;">❌</span>';
     }
     
     autoCalculateSahamLembar();
@@ -1180,7 +1171,7 @@ async function hitungZakatPeternakan() {
 }
 
 // ==========================================
-// 📊 HITUNG ZAKAT SAHAM - ENHANCED
+// 📊 HITUNG ZAKAT SAHAM
 // ==========================================
 
 async function hitungZakatSaham() {
@@ -1202,7 +1193,7 @@ async function hitungZakatSaham() {
         nilaiSaham = jumlahLembar * hargaPerLembar;
         
         if (!jumlahLembar || !hargaPerLembar) {
-            alert('Silakan lengkapi jumlah lembar dan harga per lembar!');
+            alert('Silakan lengkapi jumlah lembar dan pastikan harga sudah dimuat!');
             return;
         }
     } else {
@@ -1230,7 +1221,6 @@ async function hitungZakatSaham() {
         
         const hasil = data[0];
         
-        // Tampilkan hasil dengan info tambahan
         tampilkanHasilSaham(hasil, {
             stockCode,
             mode,
@@ -1440,7 +1430,7 @@ function tampilkanHasilPeternakan(hasil, jumlahEkor, jenisTernak) {
 }
 
 // ==========================================
-// 📊 TAMPILKAN HASIL SAHAM - ENHANCED
+// 📊 TAMPILKAN HASIL SAHAM
 // ==========================================
 
 function tampilkanHasilSaham(hasil, inputData) {
@@ -1608,9 +1598,11 @@ document.getElementById('modal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
 });
 
+// Auto-refresh prices setiap jam
 setInterval(() => {
     console.log('Auto-refreshing prices...');
     loadData();
 }, 60 * 60 * 1000);
 
+// Load data saat halaman dimuat
 window.onload = loadData;
