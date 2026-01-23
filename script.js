@@ -569,7 +569,7 @@ function renderFormPenghasilan() {
         </div>
         
         <div class="nisab-info">
-            <p><strong>Nisab:</strong> <span id="nisab-penghasilan">${toRupiah(85 * hargaEmasTerbaru / 12)}</span> (bulanan)</p>
+            <p><strong>Nisab:</strong> <span id="nisab-penghasilan">${toRupiah(85 * hargaEmasTerbaru / 12)}</span> </p>
             <p><strong>Persentase Zakat:</strong> 2.5%</p>
             <p><strong>Haul:</strong> Tidak perlu haul</p>
         </div>
