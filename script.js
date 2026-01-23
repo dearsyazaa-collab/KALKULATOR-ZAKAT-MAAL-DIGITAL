@@ -952,17 +952,12 @@ function renderFormPertanian(zakat) {
         
         <div class="form-group">
             <label>Hasil Panen (Kilogram)</label>
-            <input type="text" id="hasil-panen" placeholder="Contoh: 1000" oninput="formatAngka(this); autoCalculatePertanian()">
+            <input type="text" id="hasil-panen" placeholder="Contoh: 1000" oninput="formatAngka(this)">
         </div>
         
         <div class="info-highlight">
             <p><strong>Jenis Irigasi:</strong> ${isTadahHujan ? 'Tadah Hujan/Alami' : 'Irigasi Berbayar'}</p>
             <p><strong>Persentase Zakat:</strong> ${zakat.persentase_zakat}%</p>
-        </div>
-        
-        <div class="total-display" id="estimasi-zakat-pertanian" style="display: none;">
-            Estimasi Zakat: <strong id="estimasi-kg">0 kg</strong>
-            <small id="estimasi-rupiah"></small>
         </div>
         
         <div class="nisab-info">
@@ -1023,37 +1018,6 @@ function autoCalculatePerdagangan() {
     
     const hartaBersih = modal + laba + piutang - utang;
     document.getElementById('harta-bersih').textContent = toRupiah(hartaBersih);
-}
-
-// ==========================================
-// 🌾 AUTO CALCULATE PERTANIAN - FIXED
-// ==========================================
-
-function autoCalculatePertanian() {
-    const hasilPanen = parseAngka(document.getElementById('hasil-panen')?.value || '0');
-    const estimasiDiv = document.getElementById('estimasi-zakat-pertanian');
-    const estimasiKg = document.getElementById('estimasi-kg');
-    const estimasiRupiah = document.getElementById('estimasi-rupiah');
-    
-    if (!estimasiDiv || !estimasiKg) return;
-    
-    const NISAB_KG = 653;
-    const persentase = currentZakat.persentase_zakat || 5;
-    
-    if (hasilPanen >= NISAB_KG) {
-        const zakatKg = (hasilPanen * persentase / 100).toFixed(2);
-        const zakatRupiah = zakatKg * hargaBerasTerbaru;
-        
-        estimasiKg.textContent = `${zakatKg} kg`;
-        estimasiRupiah.textContent = ` (Setara ${toRupiah(zakatRupiah)})`;
-        estimasiDiv.style.display = 'block';
-    } else if (hasilPanen > 0) {
-        estimasiKg.textContent = `Belum nisab (kurang ${(NISAB_KG - hasilPanen).toFixed(0)} kg)`;
-        estimasiRupiah.textContent = '';
-        estimasiDiv.style.display = 'block';
-    } else {
-        estimasiDiv.style.display = 'none';
-    }
 }
 
 // ==========================================
@@ -1695,6 +1659,11 @@ function tampilkanHasilCrypto(hasil, jumlah, symbol) {
 function tampilkanHasilPertanian(hasil, hasilPanen) {
     const resultDiv = document.getElementById('result');
     
+    // Format kg: tampilkan desimal hanya jika perlu
+    const formatKg = (num) => {
+        return num % 1 === 0 ? Math.round(num) : num.toFixed(2);
+    };
+    
     if (hasil.wajib_zakat) {
         resultDiv.className = 'result-box result-wajib';
         resultDiv.innerHTML = `
@@ -1705,7 +1674,7 @@ function tampilkanHasilPertanian(hasil, hasilPanen) {
                 <p>Persentase: <strong>${hasil.persentase}%</strong></p>
             </div>
             <div class="result-amount" style="font-size: 1.8em;">
-                ${hasil.jumlah_zakat_kg.toFixed(2)} kg
+                ${formatKg(hasil.jumlah_zakat_kg)} kg
             </div>
             <p>Adalah jumlah zakat yang harus Anda keluarkan</p>
             <div style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.2); border-radius: 8px;">
@@ -1724,7 +1693,7 @@ function tampilkanHasilPertanian(hasil, hasilPanen) {
             <div class="result-detail">
                 <p>Hasil Panen: <strong>${hasilPanen.toLocaleString('id-ID')} kg</strong></p>
                 <p>Nisab: <strong>${hasil.nisab_kg} kg</strong></p>
-                <p>Kekurangan: <strong>${hasil.kekurangan_kg.toFixed(0)} kg</strong></p>
+                <p>Kekurangan: <strong>${formatKg(hasil.kekurangan_kg)} kg</strong></p>
             </div>
             <p style="margin-top: 15px;">Anda belum wajib mengeluarkan zakat pertanian, namun tetap bisa bersedekah 😊</p>
         `;
