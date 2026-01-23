@@ -1303,12 +1303,10 @@ async function hitungZakatPertanian() {
     }
     
     try {
-        const { data, error } = await supabaseClient.rpc('hitung_zakat', {
+        // Gunakan function khusus pertanian
+        const { data, error } = await supabaseClient.rpc('hitung_zakat_pertanian', {
             p_jenis_zakat_id: currentZakat.id,
-            p_input_nilai: hasilPanen,
-            p_subtype: null,
-            p_periode: null,
-            p_breakdown: null
+            p_hasil_panen_kg: hasilPanen
         });
         
         if (error) throw error;
@@ -1566,14 +1564,14 @@ function tampilkanHasilPertanian(hasil, hasilPanen) {
             <h3>✅ Alhamdulillah, Anda Wajib Zakat!</h3>
             <div class="result-detail">
                 <p>Hasil Panen: <strong>${hasilPanen} kg</strong></p>
-                <p>Nisab: <strong>653 kg</strong></p>
-                <p>Persentase: <strong>${currentZakat.persentase_zakat}%</strong></p>
+                <p>Nisab: <strong>${hasil.nisab_kg} kg</strong></p>
+                <p>Persentase: <strong>${hasil.persentase}%</strong></p>
             </div>
             <div class="result-amount" style="font-size: 1.8em;">
-                ${hasil.jumlah_zakat.toFixed(2)} kg
+                ${hasil.jumlah_zakat_kg} kg
             </div>
             <p>Adalah jumlah zakat yang harus Anda keluarkan</p>
-            <p style="font-size: 0.9em; margin-top: 10px;">Setara: ${toRupiah(hasil.jumlah_zakat * hargaBerasTerbaru)}</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Setara: ${toRupiah(hasil.jumlah_zakat_rupiah)}</p>
         `;
     } else {
         resultDiv.className = 'result-box result-belum';
@@ -1581,9 +1579,10 @@ function tampilkanHasilPertanian(hasil, hasilPanen) {
             <h3>ℹ️ Hasil Panen Belum Mencapai Nisab</h3>
             <div class="result-detail">
                 <p>Hasil Panen: <strong>${hasilPanen} kg</strong></p>
-                <p>Nisab: <strong>653 kg</strong></p>
-                <p>Kekurangan: <strong>${(653 - hasilPanen)} kg</strong></p>
+                <p>Nisab: <strong>${hasil.nisab_kg} kg</strong></p>
+                <p>Kekurangan: <strong>${hasil.kekurangan_kg} kg</strong></p>
             </div>
+            <p style="margin-top: 15px;">Anda belum wajib mengeluarkan zakat pertanian 😊</p>
         `;
     }
     
