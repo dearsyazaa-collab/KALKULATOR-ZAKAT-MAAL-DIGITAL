@@ -1,6 +1,9 @@
 // ==========================================
-// KALKULATOR ZAKAT MAAL - SCRIPT.JS FIXED
-// Version 2.1 - Fixed Stock Price Fetching
+// KALKULATOR ZAKAT MAAL - SCRIPT.JS COMPLETE
+// Version 3.0 - All Fixes Integrated
+// - Stock Price via Edge Function
+// - Zakat Pertanian Fixed
+// - Harga Beras Realtime/Scraping
 // ==========================================
 
 // KONFIGURASI SUPABASE
@@ -12,7 +15,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 let currentZakat = null;
 let hargaEmasTerbaru = 0;
 let hargaPerakTerbaru = 0;
-let hargaBerasTerbaru = 0;
+let hargaBerasTerbaru = 15000; // Default fallback
 let cryptoPrices = {};
 let currentSubtype = null;
 
@@ -44,7 +47,7 @@ const indonesianStocks = [
 ];
 
 // ==========================================
-// REALTIME PRICE FETCHING
+// REALTIME PRICE FETCHING - GOLD
 // ==========================================
 
 async function fetchRealtimeGoldPrice() {
@@ -144,6 +147,10 @@ async function fallbackGoldPrice() {
     }
 }
 
+// ==========================================
+// REALTIME PRICE FETCHING - CRYPTO
+// ==========================================
+
 async function fetchCryptoPrices() {
     try {
         const symbols = ['bitcoin', 'ethereum', 'tether', 'binancecoin', 'ripple', 'cardano', 'solana', 'dogecoin'];
@@ -216,23 +223,13 @@ async function fetchCryptoPrices() {
 }
 
 // ==========================================
-// 📊 STOCK PRICE FETCHING - FIXED VERSION
+// 📊 STOCK PRICE FETCHING - VIA EDGE FUNCTION
 // ==========================================
 
-/**
- * Fetch Stock Price dengan 2-tier fallback:
- * 1. Supabase Edge Function (PRIORITAS UTAMA - menghindari CORS)
- * 2. Database Supabase (fallback jika Edge Function gagal)
- * 
- * PENTING: TIDAK langsung call Yahoo/Alpha Vantage dari browser (CORS blocked)
- */
 async function fetchStockPrice(stockCode) {
     console.log(`📊 Fetching price for ${stockCode}...`);
     
-    // ============================================
-    // TIER 1: Supabase Edge Function (PRIORITAS)
-    // Edge Function berjalan di server, tidak kena CORS
-    // ============================================
+    // TIER 1: Supabase Edge Function (PRIORITAS - bypass CORS)
     try {
         console.log(`🔄 Trying Supabase Edge Function for ${stockCode}...`);
         
@@ -248,7 +245,6 @@ async function fetchStockPrice(stockCode) {
             }
         );
         
-        // Log response status untuk debugging
         console.log(`📡 Edge Function response status: ${response.status}`);
         
         if (!response.ok) {
@@ -263,13 +259,11 @@ async function fetchStockPrice(stockCode) {
         if (data && data.price && typeof data.price === 'number' && data.price > 0) {
             console.log(`✅ Edge Function SUCCESS: ${stockCode} = Rp ${data.price.toLocaleString('id-ID')}`);
             
-            // Update database cache
             await updateStockPriceCache(stockCode, data.price, 'Supabase Edge Function (Yahoo)', true);
             
             return data.price;
         }
         
-        // Jika response valid tapi price tidak ada
         if (data && data.error) {
             console.warn(`⚠️ Edge Function returned error: ${data.error}`);
         }
@@ -280,10 +274,7 @@ async function fetchStockPrice(stockCode) {
         console.warn(`⚠️ Edge Function failed for ${stockCode}:`, error.message);
     }
     
-    // ============================================
     // TIER 2: Database Fallback
-    // Gunakan harga terakhir yang tersimpan
-    // ============================================
     try {
         console.log(`🔄 Trying database fallback for ${stockCode}...`);
         
@@ -304,7 +295,7 @@ async function fetchStockPrice(stockCode) {
                 (Date.now() - lastUpdated) / (1000 * 60 * 60 * 24)
             );
             
-            console.log(`⚠️ Using database fallback: ${stockCode} = Rp ${data.price_per_share.toLocaleString('id-ID')} (${daysSinceUpdate} hari lalu, source: ${data.source})`);
+            console.log(`⚠️ Using database fallback: ${stockCode} = Rp ${data.price_per_share.toLocaleString('id-ID')} (${daysSinceUpdate} hari lalu)`);
             
             return data.price_per_share;
         }
@@ -313,15 +304,10 @@ async function fetchStockPrice(stockCode) {
         
     } catch (error) {
         console.error(`❌ All methods failed for ${stockCode}:`, error.message);
-        
-        // Return 0 dan tampilkan pesan ke user
         return 0;
     }
 }
 
-/**
- * Update stock price cache di database
- */
 async function updateStockPriceCache(stockCode, price, source, isRealtime) {
     try {
         const { data: existing } = await supabaseClient
@@ -361,6 +347,115 @@ async function updateStockPriceCache(stockCode, price, source, isRealtime) {
 }
 
 // ==========================================
+// 🌾 BERAS PRICE FETCHING - VIA EDGE FUNCTION
+// ==========================================
+
+async function fetchBerasPrice() {
+    console.log('🌾 Fetching harga beras...');
+    
+    // TIER 1: Supabase Edge Function (scraping)
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/functions/v1/beras-price`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            }
+        );
+        
+        if (response.ok) {
+            const result = await response.json();
+            
+            if (result.success && result.data?.price) {
+                console.log(`✅ Harga beras dari ${result.data.source}: ${result.data.price_formatted}`);
+                
+                await updateBerasPriceCache(result.data.price, result.data.source);
+                
+                hargaBerasTerbaru = result.data.price;
+                return result.data;
+            }
+        }
+        
+        throw new Error('Edge Function failed');
+        
+    } catch (error) {
+        console.warn('⚠️ Edge Function beras-price failed:', error.message);
+    }
+    
+    // TIER 2: Database fallback
+    try {
+        const { data, error } = await supabaseClient
+            .from('harga_komoditas')
+            .select('harga_per_kg, updated_at, sumber')
+            .eq('nama', 'beras')
+            .single();
+        
+        if (!error && data) {
+            const daysSinceUpdate = Math.round(
+                (Date.now() - new Date(data.updated_at)) / (1000 * 60 * 60 * 24)
+            );
+            
+            console.log(`⚠️ Using database: Beras = Rp ${data.harga_per_kg} (${daysSinceUpdate} hari lalu)`);
+            
+            hargaBerasTerbaru = data.harga_per_kg;
+            return {
+                price: data.harga_per_kg,
+                price_formatted: `Rp ${data.harga_per_kg.toLocaleString('id-ID')}`,
+                source: data.sumber + ' (Cached)',
+                timestamp: data.updated_at
+            };
+        }
+    } catch (error) {
+        console.warn('⚠️ Database fallback failed:', error.message);
+    }
+    
+    // TIER 3: Hardcoded fallback
+    console.log(`⚠️ Using hardcoded fallback: Rp ${hargaBerasTerbaru}`);
+    return {
+        price: hargaBerasTerbaru,
+        price_formatted: `Rp ${hargaBerasTerbaru.toLocaleString('id-ID')}`,
+        source: 'Default (Fallback)',
+        timestamp: new Date().toISOString()
+    };
+}
+
+async function updateBerasPriceCache(price, source) {
+    try {
+        const { data: existing } = await supabaseClient
+            .from('harga_komoditas')
+            .select('id')
+            .eq('nama', 'beras')
+            .maybeSingle();
+        
+        if (existing) {
+            await supabaseClient
+                .from('harga_komoditas')
+                .update({
+                    harga_per_kg: price,
+                    sumber: source,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('nama', 'beras');
+        } else {
+            await supabaseClient
+                .from('harga_komoditas')
+                .insert({
+                    nama: 'beras',
+                    harga_per_kg: price,
+                    sumber: source
+                });
+        }
+        
+        console.log(`💾 Harga beras cached: Rp ${price}`);
+    } catch (error) {
+        console.error('Error caching beras price:', error);
+    }
+}
+
+// ==========================================
 // FORMAT FUNCTIONS
 // ==========================================
 
@@ -395,6 +490,9 @@ async function loadData() {
         hargaEmasTerbaru = await fetchRealtimeGoldPrice();
         cryptoPrices = await fetchCryptoPrices();
         
+        // Fetch harga beras juga
+        await fetchBerasPrice();
+        
         const { data: nisabData } = await supabaseClient
             .from('harga_nisab')
             .select('harga_perak_per_gram, harga_beras_per_kg')
@@ -403,7 +501,6 @@ async function loadData() {
             .maybeSingle();
         
         hargaPerakTerbaru = nisabData?.harga_perak_per_gram || HARGA_FALLBACK.perak;
-        hargaBerasTerbaru = nisabData?.harga_beras_per_kg || HARGA_FALLBACK.beras;
         
         document.getElementById('harga-emas').innerHTML = toRupiah(hargaEmasTerbaru) + 
             ' <span class="realtime-badge">LIVE</span>';
@@ -569,7 +666,7 @@ function renderFormPenghasilan() {
         </div>
         
         <div class="nisab-info">
-            <p><strong>Nisab:</strong> <span id="nisab-penghasilan">${toRupiah(85 * hargaEmasTerbaru / 12)}</span> </p>
+            <p><strong>Nisab:</strong> <span id="nisab-penghasilan">${toRupiah(85 * hargaEmasTerbaru / 12)}</span> (bulanan)</p>
             <p><strong>Persentase Zakat:</strong> 2.5%</p>
             <p><strong>Haul:</strong> Tidak perlu haul</p>
         </div>
@@ -685,10 +782,6 @@ function renderFormPeternakan(zakat) {
     `;
 }
 
-// ==========================================
-// 📊 RENDER FORM SAHAM - ENHANCED VERSION
-// ==========================================
-
 function renderFormSaham() {
     const container = document.getElementById('modal-content-container');
     container.innerHTML = `
@@ -745,7 +838,7 @@ function renderFormSaham() {
             </div>
         </div>
         
-        <!-- DIVIDEN (untuk kedua mode) -->
+        <!-- DIVIDEN -->
         <div class="form-group">
             <label>Dividen yang Diterima <small style="color: #718096;">(opsional - per tahun)</small></label>
             <input type="text" id="dividen-saham" placeholder="0" oninput="formatRupiah(this); autoCalculateSahamCurrent()">
@@ -844,6 +937,10 @@ function renderFormCrypto() {
     `;
 }
 
+// ==========================================
+// 🌾 RENDER FORM PERTANIAN - FIXED
+// ==========================================
+
 function renderFormPertanian(zakat) {
     const isTadahHujan = zakat.persentase_zakat === 10;
     
@@ -855,7 +952,7 @@ function renderFormPertanian(zakat) {
         
         <div class="form-group">
             <label>Hasil Panen (Kilogram)</label>
-            <input type="text" id="hasil-panen" placeholder="Contoh: 1000" oninput="formatAngka(this)">
+            <input type="text" id="hasil-panen" placeholder="Contoh: 1000" oninput="formatAngka(this); autoCalculatePertanian()">
         </div>
         
         <div class="info-highlight">
@@ -863,9 +960,15 @@ function renderFormPertanian(zakat) {
             <p><strong>Persentase Zakat:</strong> ${zakat.persentase_zakat}%</p>
         </div>
         
+        <div class="total-display" id="estimasi-zakat-pertanian" style="display: none;">
+            Estimasi Zakat: <strong id="estimasi-kg">0 kg</strong>
+            <small id="estimasi-rupiah"></small>
+        </div>
+        
         <div class="nisab-info">
-            <p><strong>Nisab:</strong> 653 kg gabah</p>
+            <p><strong>Nisab:</strong> 653 kg gabah (5 wasaq)</p>
             <p><strong>Haul:</strong> Tidak perlu haul (saat panen)</p>
+            <p><strong>Harga Beras:</strong> <span id="harga-beras-info">${toRupiah(hargaBerasTerbaru)}/kg</span></p>
         </div>
         
         <button type="button" class="btn-hitung" onclick="hitungZakatPertanian()">
@@ -923,7 +1026,38 @@ function autoCalculatePerdagangan() {
 }
 
 // ==========================================
-// 📊 AUTO CALCULATE SAHAM - FIXED
+// 🌾 AUTO CALCULATE PERTANIAN - FIXED
+// ==========================================
+
+function autoCalculatePertanian() {
+    const hasilPanen = parseAngka(document.getElementById('hasil-panen')?.value || '0');
+    const estimasiDiv = document.getElementById('estimasi-zakat-pertanian');
+    const estimasiKg = document.getElementById('estimasi-kg');
+    const estimasiRupiah = document.getElementById('estimasi-rupiah');
+    
+    if (!estimasiDiv || !estimasiKg) return;
+    
+    const NISAB_KG = 653;
+    const persentase = currentZakat.persentase_zakat || 5;
+    
+    if (hasilPanen >= NISAB_KG) {
+        const zakatKg = (hasilPanen * persentase / 100).toFixed(2);
+        const zakatRupiah = zakatKg * hargaBerasTerbaru;
+        
+        estimasiKg.textContent = `${zakatKg} kg`;
+        estimasiRupiah.textContent = ` (Setara ${toRupiah(zakatRupiah)})`;
+        estimasiDiv.style.display = 'block';
+    } else if (hasilPanen > 0) {
+        estimasiKg.textContent = `Belum nisab (kurang ${(NISAB_KG - hasilPanen).toFixed(0)} kg)`;
+        estimasiRupiah.textContent = '';
+        estimasiDiv.style.display = 'block';
+    } else {
+        estimasiDiv.style.display = 'none';
+    }
+}
+
+// ==========================================
+// 📊 AUTO CALCULATE SAHAM
 // ==========================================
 
 async function loadStockData() {
@@ -935,14 +1069,12 @@ async function loadStockData() {
         return;
     }
     
-    // Show loading
     const priceInput = document.getElementById('harga-per-lembar');
     const badge = document.getElementById('stock-price-badge');
     
     priceInput.value = 'Loading...';
     badge.innerHTML = '<span class="spinner"></span>';
     
-    // Fetch price via Edge Function
     const price = await fetchStockPrice(stockCode);
     
     if (price > 0) {
@@ -1170,10 +1302,6 @@ async function hitungZakatPeternakan() {
     }
 }
 
-// ==========================================
-// 📊 HITUNG ZAKAT SAHAM
-// ==========================================
-
 async function hitungZakatSaham() {
     const mode = document.querySelector('input[name="mode-saham"]:checked').value;
     const stockCode = document.getElementById('kode-saham').value;
@@ -1294,6 +1422,10 @@ async function hitungZakatCrypto() {
     }
 }
 
+// ==========================================
+// 🌾 HITUNG ZAKAT PERTANIAN - FIXED (CLIENT-SIDE)
+// ==========================================
+
 async function hitungZakatPertanian() {
     const hasilPanen = parseAngka(document.getElementById('hasil-panen').value);
     
@@ -1302,22 +1434,27 @@ async function hitungZakatPertanian() {
         return;
     }
     
-    try {
-        // Gunakan function khusus pertanian
-        const { data, error } = await supabaseClient.rpc('hitung_zakat_pertanian', {
-            p_jenis_zakat_id: currentZakat.id,
-            p_hasil_panen_kg: hasilPanen
-        });
-        
-        if (error) throw error;
-        
-        const hasil = data[0];
-        tampilkanHasilPertanian(hasil, hasilPanen);
-        
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan: ' + error.message);
+    const NISAB_KG = 653;
+    const persentase = currentZakat.persentase_zakat || 5;
+    
+    // Pastikan harga beras sudah di-load
+    if (hargaBerasTerbaru <= 0) {
+        await fetchBerasPrice();
     }
+    
+    // Hitung langsung di client-side (logika sederhana)
+    const hasil = {
+        wajib_zakat: hasilPanen >= NISAB_KG,
+        nisab_kg: NISAB_KG,
+        hasil_panen: hasilPanen,
+        persentase: persentase,
+        jumlah_zakat_kg: hasilPanen >= NISAB_KG ? (hasilPanen * persentase / 100) : 0,
+        jumlah_zakat_rupiah: hasilPanen >= NISAB_KG ? (hasilPanen * persentase / 100 * hargaBerasTerbaru) : 0,
+        harga_beras_per_kg: hargaBerasTerbaru,
+        kekurangan_kg: hasilPanen < NISAB_KG ? (NISAB_KG - hasilPanen) : 0
+    };
+    
+    tampilkanHasilPertanian(hasil, hasilPanen);
 }
 
 // ==========================================
@@ -1426,10 +1563,6 @@ function tampilkanHasilPeternakan(hasil, jumlahEkor, jenisTernak) {
     
     resultDiv.style.display = 'block';
 }
-
-// ==========================================
-// 📊 TAMPILKAN HASIL SAHAM
-// ==========================================
 
 function tampilkanHasilSaham(hasil, inputData) {
     const resultDiv = document.getElementById('result');
@@ -1555,6 +1688,10 @@ function tampilkanHasilCrypto(hasil, jumlah, symbol) {
     resultDiv.style.display = 'block';
 }
 
+// ==========================================
+// 🌾 TAMPILKAN HASIL PERTANIAN - FIXED
+// ==========================================
+
 function tampilkanHasilPertanian(hasil, hasilPanen) {
     const resultDiv = document.getElementById('result');
     
@@ -1563,26 +1700,33 @@ function tampilkanHasilPertanian(hasil, hasilPanen) {
         resultDiv.innerHTML = `
             <h3>✅ Alhamdulillah, Anda Wajib Zakat!</h3>
             <div class="result-detail">
-                <p>Hasil Panen: <strong>${hasilPanen} kg</strong></p>
+                <p>Hasil Panen: <strong>${hasilPanen.toLocaleString('id-ID')} kg</strong></p>
                 <p>Nisab: <strong>${hasil.nisab_kg} kg</strong></p>
                 <p>Persentase: <strong>${hasil.persentase}%</strong></p>
             </div>
             <div class="result-amount" style="font-size: 1.8em;">
-                ${hasil.jumlah_zakat_kg} kg
+                ${hasil.jumlah_zakat_kg.toFixed(2)} kg
             </div>
             <p>Adalah jumlah zakat yang harus Anda keluarkan</p>
-            <p style="font-size: 0.9em; margin-top: 10px;">Setara: ${toRupiah(hasil.jumlah_zakat_rupiah)}</p>
+            <div style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.2); border-radius: 8px;">
+                <p style="font-size: 1em; margin-bottom: 5px;">
+                    💰 Setara: <strong style="font-size: 1.2em;">${toRupiah(hasil.jumlah_zakat_rupiah)}</strong>
+                </p>
+                <p style="font-size: 0.8em; opacity: 0.9;">
+                    Berdasarkan harga beras ${toRupiah(hasil.harga_beras_per_kg)}/kg
+                </p>
+            </div>
         `;
     } else {
         resultDiv.className = 'result-box result-belum';
         resultDiv.innerHTML = `
             <h3>ℹ️ Hasil Panen Belum Mencapai Nisab</h3>
             <div class="result-detail">
-                <p>Hasil Panen: <strong>${hasilPanen} kg</strong></p>
+                <p>Hasil Panen: <strong>${hasilPanen.toLocaleString('id-ID')} kg</strong></p>
                 <p>Nisab: <strong>${hasil.nisab_kg} kg</strong></p>
-                <p>Kekurangan: <strong>${hasil.kekurangan_kg} kg</strong></p>
+                <p>Kekurangan: <strong>${hasil.kekurangan_kg.toFixed(0)} kg</strong></p>
             </div>
-            <p style="margin-top: 15px;">Anda belum wajib mengeluarkan zakat pertanian 😊</p>
+            <p style="margin-top: 15px;">Anda belum wajib mengeluarkan zakat pertanian, namun tetap bisa bersedekah 😊</p>
         `;
     }
     
