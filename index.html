@@ -1,72 +1,200 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Zakat Maal - Hitung Zakat Anda</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
-    
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kalkulator Zakat Maal — Hitung Zakat Anda</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>💰 Kalkulator Zakat Maal</h1>
-            <p>Hitung zakat Anda dengan mudah dan akurat - Dengan harga realtime</p>
-        </header>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <a href="index.html" class="logo">
+          <span class="logo-icon">◆</span>
+          <h1>Kalkulator Zakat Maal</h1>
+        </a>
+        <p class="tagline">Perhitungan Zakat yang Tepat & Terpercaya</p>
+      </div>
+      <nav class="nav" id="main-nav" aria-label="Navigasi utama">
+        <a href="dalil.html" class="nav-link">Dalil & Fatwa</a>
+        <a href="fiqih.html" class="nav-link">Fiqih Harian</a>
+        <a href="laz.html" class="nav-link">LAZ / UPZ</a>
+        <a href="kalkulator.html" class="nav-link primary">
+          <span class="nav-icon">⬡</span>
+          Hitung Zakat
+        </a>
+      </nav>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </header>
 
-        <div class="info-nisab">
-            <h3>📊 Informasi Nisab Hari Ini (Realtime)</h3>
-            <div class="nisab-detail">
-                <div class="nisab-item">
-                    <div class="label">Harga Emas/gram</div>
-                    <div class="value" id="harga-emas">Loading...</div>
-                </div>
-                <div class="nisab-item">
-                    <div class="label">Nisab Emas (85g)</div>
-                    <div class="value" id="nisab-rupiah">Loading...</div>
-                </div>
-                <div class="nisab-item">
-                    <div class="label">Update Terakhir</div>
-                    <div class="value" id="tanggal-update">-</div>
-                </div>
+    <main>
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero-content">
+          <span class="hero-badge">
+            <span class="badge-dot"></span>
+            Data Pasar Terkini
+          </span>
+          <h2 class="hero-title">Informasi Nisab<br><span class="highlight">Hari Ini</span></h2>
+          <p class="hero-desc">Data harga emas, saham, dan cryptocurrency diperbarui secara real-time untuk perhitungan zakat yang akurat.</p>
+          <a href="kalkulator.html" class="btn-primary">
+            <span>Mulai Hitung Zakat</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+        
+        <!-- Kartu Nisab Utama -->
+        <div class="nisab-hero-card">
+          <div class="nisab-hero-header">
+            <div class="nisab-hero-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
             </div>
-        </div>
-
-        <div id="loading" class="loading">
-            ⏳ Memuat data zakat...
-        </div>
-
-        <div id="zakat-container" class="zakat-grid" style="display: none;">
-            <!-- Cards akan di-generate oleh JavaScript -->
-        </div>
-
-        <footer>
-            <p>© 2026 Kalkulator Zakat - Untuk memudahkan menunaikan kewajiban zakat</p>
-            <p style="font-size: 0.9em; margin-top: 10px;">Data nisab berdasarkan harga emas & crypto terkini</p>
-        </footer>
-    </div>
-
-    <!-- Modal -->
-    <div id="modal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 id="modal-title">Hitung Zakat</h2>
-                <button class="close-btn" onclick="closeModal()">×</button>
+            <div>
+              <span class="nisab-hero-label">Nisab Zakat Maal</span>
+              <span class="nisab-hero-basis">Setara 85 gram emas murni</span>
             </div>
-
-            <!-- 
-                Modal content akan di-generate oleh JavaScript di sini
-                Semua form (Penghasilan, Perdagangan, Saham, Emas/Perak, Crypto, Peternakan, Pertanian)
-                dibuat secara dinamis oleh fungsi-fungsi render di script.js
-            -->
-            <div id="modal-content-container"></div>
+            <span class="live-indicator" id="live-status">
+              <span class="live-dot"></span>
+              <span class="live-text">LIVE</span>
+            </span>
+          </div>
+          <div class="nisab-hero-value" id="nisab-rupiah">
+            <span class="loading-text">Memuat...</span>
+          </div>
+          <div class="nisab-hero-footer">
+            <div class="nisab-meta">
+              <span class="meta-label">Harga Emas/gram</span>
+              <span class="meta-value" id="harga-emas">Memuat...</span>
+            </div>
+            <div class="nisab-meta">
+              <span class="meta-label">Terakhir Diperbarui</span>
+              <span class="meta-value" id="tanggal-update">-</span>
+            </div>
+          </div>
         </div>
-    </div>
+      </section>
 
-    <script src="script.js"></script>
+      <!-- Overview Pasar -->
+      <section class="market-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <span class="section-icon">◈</span>
+            Overview Pasar
+          </h3>
+          <span class="section-badge" id="market-status">Memuat data...</span>
+        </div>
+
+        <!-- Logam Mulia -->
+        <div class="market-group">
+          <h4 class="market-group-title">Logam Mulia</h4>
+          <div class="price-grid price-grid-2" id="metal-grid">
+            <!-- Emas -->
+            <div class="price-card" id="card-emas">
+              <div class="price-card-header">
+                <div class="price-icon gold">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                </div>
+                <div class="price-info">
+                  <span class="price-name">Emas 24K</span>
+                  <span class="price-unit">per gram</span>
+                </div>
+              </div>
+              <div class="price-value" id="display-emas">Memuat...</div>
+            </div>
+            <!-- Perak -->
+            <div class="price-card" id="card-perak">
+              <div class="price-card-header">
+                <div class="price-icon silver">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                </div>
+                <div class="price-info">
+                  <span class="price-name">Perak</span>
+                  <span class="price-unit">per gram</span>
+                </div>
+              </div>
+              <div class="price-value" id="display-perak">Memuat...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cryptocurrency -->
+        <div class="market-group">
+          <h4 class="market-group-title">Cryptocurrency</h4>
+          <div class="price-grid price-grid-4" id="crypto-grid">
+            <!-- Diisi oleh JavaScript -->
+          </div>
+        </div>
+
+        <!-- Saham Indonesia -->
+        <div class="market-group">
+          <h4 class="market-group-title">Saham Indonesia (IDX)</h4>
+          <div class="price-grid price-grid-5" id="stock-grid">
+            <!-- Diisi oleh JavaScript -->
+          </div>
+          <p class="market-note">* Harga saham memerlukan konfigurasi API tambahan</p>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="cta-section">
+        <div class="cta-card">
+          <div class="cta-content">
+            <h3 class="cta-title">Siap Menghitung Zakat Anda?</h3>
+            <p class="cta-desc">Hitung zakat maal, penghasilan, emas, saham, crypto dan lainnya dengan data harga terkini.</p>
+          </div>
+          <a href="kalkulator.html" class="btn-primary btn-large">
+            <span>Buka Kalkulator Zakat</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="logo-icon">◆</span>
+          <span>ZakatCalc</span>
+        </div>
+        <p class="footer-text">Perhitungan zakat berdasarkan harga emas real-time. Nisab mengikuti standar 85 gram emas murni.</p>
+        <div class="footer-links">
+          <a href="index.html">Beranda</a>
+          <a href="kalkulator.html">Kalkulator</a>
+          <a href="dalil.html">Dalil & Fatwa</a>
+          <a href="fiqih.html">Fiqih Harian</a>
+          <a href="laz.html">LAZ / UPZ</a>
+        </div>
+        <div class="footer-meta">
+          <span>© 2026 Syazaa</span>
+          <span class="footer-divider">•</span>
+          <span>Minimalis & Akurat</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>

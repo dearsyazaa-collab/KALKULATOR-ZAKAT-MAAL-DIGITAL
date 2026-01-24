@@ -1,783 +1,922 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ========================================
+   ZakatCalc — Elegant & Modern Design
+   ======================================== */
+
+:root {
+  /* Color Palette */
+  --bg-primary: #0a0f0d;
+  --bg-secondary: #0d1512;
+  --bg-tertiary: #111a17;
+  --bg-card: #141e1a;
+  --bg-card-hover: #1a2622;
+  
+  /* Surface Colors */
+  --surface-1: rgba(255, 255, 255, 0.02);
+  --surface-2: rgba(255, 255, 255, 0.04);
+  --surface-3: rgba(255, 255, 255, 0.06);
+  --surface-border: rgba(255, 255, 255, 0.06);
+  
+  /* Accent Colors */
+  --accent-gold: #c9a227;
+  --accent-gold-light: #e3be4f;
+  --accent-gold-muted: rgba(201, 162, 39, 0.15);
+  --accent-emerald: #2dd4a7;
+  --accent-emerald-muted: rgba(45, 212, 167, 0.12);
+  
+  /* Text Colors */
+  --text-primary: #f0f5f3;
+  --text-secondary: #9aa8a2;
+  --text-muted: #5e6d67;
+  
+  /* Semantic Colors */
+  --success: #34d399;
+  --success-muted: rgba(52, 211, 153, 0.12);
+  --warning: #fbbf24;
+  --danger: #f87171;
+  
+  /* Gradients */
+  --gradient-gold: linear-gradient(135deg, #c9a227 0%, #a88621 100%);
+  --gradient-card: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+  
+  /* Typography */
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  
+  /* Spacing & Sizing */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.25);
+  --shadow-glow: 0 0 40px rgba(201, 162, 39, 0.1);
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}
+
+/* ========================================
+   Reset & Base
+   ======================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding: 20px;
+  font-family: var(--font-main);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(45, 212, 167, 0.05), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(201, 162, 39, 0.03), transparent);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
 }
 
-header {
-    text-align: center;
-    color: white;
-    margin-bottom: 40px;
-    padding: 20px;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-header h1 {
-    font-size: 2.5em;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+/* ========================================
+   Header
+   ======================================== */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--surface-border);
 }
 
-header p {
-    font-size: 1.1em;
-    opacity: 0.9;
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.info-nisab {
-    background: rgba(255,255,255,0.95);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 30px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.info-nisab h3 {
-    color: #667eea;
-    margin-bottom: 15px;
-    font-size: 1.3em;
+.logo-icon {
+  color: var(--accent-gold);
+  font-size: 1.5rem;
+  line-height: 1;
 }
 
-.nisab-detail {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+.logo h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.nisab-item {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 15px;
-    border-radius: 10px;
-    text-align: center;
+.tagline {
+  font-size: 0.875rem;
+  color: var(--text-muted);
 }
 
-.nisab-item .label {
-    font-size: 0.9em;
-    opacity: 0.9;
-    margin-bottom: 5px;
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.nisab-item .value {
-    font-size: 1.5em;
-    font-weight: bold;
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--transition-normal);
 }
 
-.zakat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 25px;
-    margin-bottom: 40px;
+.nav-link:hover {
+  color: var(--text-primary);
+  background: var(--surface-2);
 }
 
-.zakat-card {
-    background: white;
-    border-radius: 15px;
-    padding: 25px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border: 3px solid transparent;
+.nav-link.primary {
+  background: var(--gradient-gold);
+  color: #0a0f0d;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm), 0 0 20px rgba(201, 162, 39, 0.15);
 }
 
-.zakat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    border-color: #667eea;
+.nav-link.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), 0 0 30px rgba(201, 162, 39, 0.25);
 }
 
-.zakat-card-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
-.zakat-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    margin-right: 15px;
+.nav-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--text-secondary);
+  border-radius: 2px;
 }
 
-.icon-maal { 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+/* ========================================
+   Hero Section
+   ======================================== */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  padding: 48px 0 64px;
 }
 
-.icon-pertanian { 
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+.hero-content {
+  max-width: 480px;
 }
 
-.icon-peternakan { 
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--accent-emerald-muted);
+  color: var(--accent-emerald);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 100px;
+  margin-bottom: 24px;
 }
 
-.zakat-card h3 {
-    color: #2d3748;
-    font-size: 1.3em;
-    margin-bottom: 5px;
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-emerald);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
 }
 
-.zakat-badge {
-    display: inline-block;
-    background: #edf2f7;
-    color: #667eea;
-    font-size: 0.75em;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-weight: 600;
+.hero-title {
+  font-size: 3.25rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
 }
 
-.zakat-card p {
-    color: #718096;
-    font-size: 0.95em;
-    line-height: 1.6;
+.hero-title .highlight {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    z-index: 1000;
-    animation: fadeIn 0.3s ease;
+.hero-desc {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 32px;
 }
 
-.modal-overlay.active {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Button */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: var(--gradient-gold);
+  color: #0a0f0d;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm), 0 0 20px rgba(201, 162, 39, 0.15);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), 0 0 30px rgba(201, 162, 39, 0.25);
 }
 
-.modal {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    max-width: 600px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideUp 0.3s ease;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+.btn-large {
+  padding: 16px 32px;
+  font-size: 1.05rem;
 }
 
-@keyframes slideUp {
-    from { 
-        transform: translateY(50px); 
-        opacity: 0; 
-    }
-    to { 
-        transform: translateY(0); 
-        opacity: 1; 
-    }
+/* Nisab Hero Card */
+.nisab-hero-card {
+  background: var(--gradient-card);
+  background-color: var(--bg-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  position: relative;
+  overflow: hidden;
 }
 
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-    margin-bottom: 25px;
+.nisab-hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.3), transparent);
 }
 
-.modal-header h2 {
-    color: #2d3748;
-    font-size: 1.6em;
-    flex: 1;
+.nisab-hero-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
 }
 
-.close-btn {
-    background: #edf2f7;
-    border: none;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    color: #718096;
-    transition: all 0.2s;
+.nisab-hero-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-gold-muted);
+  color: var(--accent-gold);
+  border-radius: var(--radius-md);
 }
 
-.close-btn:hover {
-    background: #e2e8f0;
-    color: #2d3748;
+.nisab-hero-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
-.form-group {
-    margin-bottom: 20px;
+.nisab-hero-basis {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
-.form-group label {
-    display: block;
-    color: #4a5568;
-    font-weight: 600;
-    margin-bottom: 8px;
-    font-size: 0.95em;
+.live-indicator {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--success-muted);
+  color: var(--success);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-radius: 100px;
 }
 
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1em;
-    transition: all 0.3s;
-    font-family: inherit;
+.live-indicator.offline {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--warning);
 }
 
-.form-group input:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* Input readonly (untuk harga saham auto-fetch) */
-.form-group input[readonly] {
-    background: #f7fafc;
-    cursor: not-allowed;
-    color: #4a5568;
-}
-
-.info-box {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    font-size: 0.9em;
-    line-height: 1.6;
-}
-
-.nisab-info {
-    background: #f7fafc;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    border-left: 4px solid #667eea;
-}
-
-.nisab-info p {
-    color: #4a5568;
-    margin-bottom: 8px;
-    font-size: 0.95em;
-}
-
-.nisab-info strong {
-    color: #667eea;
-}
-
-.btn-hitung {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.btn-hitung:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.btn-hitung:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.result-box {
-    margin-top: 25px;
-    padding: 25px;
-    border-radius: 15px;
-    animation: slideUp 0.3s ease;
-}
-
-.result-wajib {
-    background: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);
-    color: white;
-}
-
-.result-belum {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-}
-
-.result-box h3 {
-    font-size: 1.4em;
-    margin-bottom: 15px;
-}
-
-.result-detail {
-    background: rgba(255,255,255,0.2);
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-}
-
-.result-detail p {
-    margin-bottom: 8px;
-    font-size: 1em;
-}
-
-.result-amount {
-    font-size: 2em;
-    font-weight: bold;
-    margin: 15px 0;
-}
-
-footer {
-    text-align: center;
-    color: white;
-    padding: 20px;
-    margin-top: 40px;
-    opacity: 0.9;
-}
-
-.loading {
-    text-align: center;
-    padding: 40px;
-    color: white;
-    font-size: 1.2em;
-}
-
-/* Realtime indicator */
-.realtime-badge {
-    display: inline-block;
-    background: #48bb78;
-    color: white;
-    font-size: 0.75em;
-    padding: 3px 8px;
-    border-radius: 8px;
-    margin-left: 8px;
-    animation: pulse 2s infinite;
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
 }
 
-/* ==========================================
-   ENHANCED FORM STYLES
-   ========================================== */
-
-/* Periode Selector (Radio buttons) - juga dipakai untuk Mode Selector di Saham */
-.periode-selector {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 25px;
-    background: #f7fafc;
-    padding: 15px;
-    border-radius: 10px;
+.nisab-hero-value {
+  font-size: 2.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  min-height: 52px;
 }
 
-.periode-selector .radio-label {
-    flex: 1;
-    display: flex;
-    align-items: center;
+.nisab-hero-value:not(.loaded) {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.nisab-hero-value.loaded {
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-gold-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nisab-hero-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.nisab-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meta-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.meta-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ========================================
+   Market Section
+   ======================================== */
+
+.market-section {
+  padding: 48px 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.section-icon {
+  color: var(--accent-gold);
+}
+
+.section-badge {
+  padding: 6px 12px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+}
+
+.section-badge.success {
+  background: var(--success-muted);
+  color: var(--success);
+}
+
+.market-group {
+  margin-bottom: 32px;
+}
+
+.market-group-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+
+.market-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+  font-style: italic;
+}
+
+/* Price Grid */
+.price-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.price-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.price-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.price-grid-5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+/* Price Card */
+.price-card {
+  background: var(--bg-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: all var(--transition-normal);
+}
+
+.price-card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.price-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.price-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.price-icon.gold {
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.2), rgba(201, 162, 39, 0.1));
+  color: var(--accent-gold);
+}
+
+.price-icon.silver {
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.1));
+  color: #c0c0c0;
+}
+
+.price-icon.crypto {
+  background: var(--surface-2);
+  color: var(--text-secondary);
+}
+
+.price-icon.stock {
+  background: var(--accent-emerald-muted);
+  color: var(--accent-emerald);
+  font-size: 0.7rem;
+}
+
+.price-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.price-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.price-unit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.price-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.price-value.loading {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.price-value.error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Skeleton */
+.price-card.skeleton .price-value,
+.price-card.skeleton .price-name {
+  background: var(--surface-2);
+  border-radius: 4px;
+  color: transparent;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+/* ========================================
+   CTA Section
+   ======================================== */
+
+.cta-section {
+  padding: 48px 0;
+}
+
+.cta-card {
+  background: var(--gradient-card);
+  background-color: var(--bg-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: 48px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.cta-content {
+  max-width: 480px;
+  margin: 0 auto 28px;
+}
+
+.cta-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.cta-desc {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+
+.footer {
+  padding: 32px 0;
+  border-top: 1px solid var(--surface-border);
+  margin-top: 32px;
+}
+
+.footer-content {
+  text-align: center;
+}
+
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.footer-text {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  max-width: 400px;
+  margin: 0 auto 20px;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.footer-links a {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.footer-links a:hover {
+  color: var(--accent-gold);
+}
+
+.footer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.footer-divider {
+  opacity: 0.3;
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .hero-content {
+    text-align: center;
+    max-width: 100%;
+  }
+  
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .btn-primary {
     justify-content: center;
-    padding: 12px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: white;
+  }
+  
+  .price-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .price-grid-5 {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
-
-.periode-selector .radio-label:hover {
-    border-color: #667eea;
-    background: #f0f4ff;
-}
-
-.periode-selector input[type="radio"] {
-    margin-right: 8px;
-    width: auto;
-}
-
-.periode-selector input[type="radio"]:checked + span {
-    color: #667eea;
-    font-weight: 600;
-}
-
-/* Modern browser support */
-.periode-selector .radio-label:has(input:checked) {
-    border-color: #667eea;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-}
-
-/* Fallback for older browsers */
-@supports not (selector(:has(input:checked))) {
-    .periode-selector input[type="radio"]:checked + span {
-        color: #667eea;
-        font-weight: 600;
-    }
-}
-
-/* Form Section */
-.form-section {
-    background: #f7fafc;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.form-section h4 {
-    color: #667eea;
-    margin-bottom: 15px;
-    font-size: 1.1em;
-    display: flex;
-    align-items: center;
-}
-
-/* Total Display */
-.total-display {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-top: 15px;
-    font-size: 0.95em;
-    color: #4a5568;
-    border-left: 4px solid #667eea;
-}
-
-.total-display strong {
-    color: #667eea;
-    font-size: 1.1em;
-    margin-left: 8px;
-}
-
-.total-display small {
-    display: block;
-    font-size: 0.85em;
-    color: #718096;
-    margin-top: 5px;
-}
-
-.total-display-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    font-size: 1.05em;
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.total-display-primary strong {
-    color: white;
-    font-size: 1.3em;
-}
-
-.total-display-primary small {
-    color: rgba(255,255,255,0.9);
-}
-
-/* Checkbox Group */
-.checkbox-group {
-    background: #f7fafc;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.checkbox-group p {
-    color: #4a5568;
-    font-weight: 600;
-    margin-bottom: 12px;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    margin-bottom: 8px;
-    background: white;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 2px solid transparent;
-}
-
-.checkbox-label:hover {
-    background: #f0f4ff;
-    border-color: #e2e8f0;
-}
-
-.checkbox-label input[type="checkbox"] {
-    width: auto;
-    margin-right: 10px;
-    cursor: pointer;
-}
-
-.checkbox-label span {
-    color: #4a5568;
-    font-size: 0.95em;
-}
-
-.checkbox-label:has(input:checked) {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-    border-color: #667eea;
-}
-
-.checkbox-label:has(input:checked) span {
-    color: #667eea;
-    font-weight: 500;
-}
-
-/* Info Highlight */
-.info-highlight {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    border-left: 4px solid #667eea;
-}
-
-.info-highlight p {
-    color: #4a5568;
-    margin-bottom: 8px;
-    font-size: 0.95em;
-}
-
-.info-highlight strong {
-    color: #667eea;
-}
-
-/* ==========================================
-   STOCK FORM SPECIFIC STYLES - NEW
-   ========================================== */
-
-/* Container untuk mode lembar dan manual */
-#mode-lembar-container,
-#mode-manual-container {
-    transition: all 0.3s ease;
-}
-
-/* Stock price badge positioning */
-.form-group [id$="-badge"] {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.75em;
-}
-
-/* Input dengan badge (relative positioning untuk parent) */
-.form-group > div[style*="position: relative"] {
-    position: relative;
-}
-
-/* Stock price input dengan background abu-abu */
-input[id="harga-per-lembar"][readonly] {
-    background: #f7fafc !important;
-    color: #4a5568;
-    font-weight: 500;
-}
-
-/* Loading state untuk input harga */
-input[value="Loading..."] {
-    color: #718096;
-    font-style: italic;
-}
-
-/* Error state untuk input harga */
-input[value*="Gagal"] {
-    color: #e53e3e;
-    background: #fff5f5 !important;
-}
-
-/* ==========================================
-   SELECT & DATALIST STYLING
-   ========================================== */
-
-/* Select Dropdown Styling */
-select {
-    background-color: white;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    padding-right: 40px;
-}
-
-/* Datalist untuk autocomplete saham */
-input[list] {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    padding-right: 40px;
-}
-
-/* ==========================================
-   SCROLLBAR & MISC
-   ========================================== */
-
-/* Scrollbar untuk modal */
-.modal::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.modal::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 10px;
-}
-
-.modal::-webkit-scrollbar-thumb:hover {
-    background: #667eea;
-}
-
-/* Input number tanpa spinner */
-input[type="text"]::-webkit-inner-spin-button,
-input[type="text"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-/* ==========================================
-   RESPONSIVE DESIGN
-   ========================================== */
 
 @media (max-width: 768px) {
-    header h1 {
-        font-size: 1.8em;
-    }
-    
-    .zakat-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .modal {
-        width: 95%;
-        padding: 20px;
-        max-height: 85vh;
-    }
-    
-    .periode-selector {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .nisab-detail {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-section h4 {
-        font-size: 1em;
-    }
-    
-    .total-display {
-        font-size: 0.9em;
-    }
-    
-    .result-amount {
-        font-size: 1.6em;
-    }
-    
-    /* Stock badge positioning untuk mobile */
-    .form-group [id$="-badge"] {
-        font-size: 0.7em;
-        padding: 2px 6px;
-    }
+  .container {
+    padding: 16px;
+  }
+  
+  .header {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  
+  .nav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--surface-border);
+  }
+  
+  .nav.active {
+    display: flex;
+  }
+  
+  .nav-link {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .nav-toggle {
+    display: flex;
+  }
+  
+  .hero {
+    padding: 32px 0 48px;
+  }
+  
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .nisab-hero-value {
+    font-size: 2rem;
+  }
+  
+  .price-grid-2,
+  .price-grid-4,
+  .price-grid-5 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .cta-card {
+    padding: 32px 24px;
+  }
 }
 
 @media (max-width: 480px) {
-    body {
-        padding: 10px;
-    }
-    
-    header h1 {
-        font-size: 1.5em;
-    }
-    
-    .modal {
-        padding: 15px;
-    }
-    
-    .modal-header h2 {
-        font-size: 1.3em;
-    }
-    
-    .zakat-card {
-        padding: 20px;
-    }
-    
-    .zakat-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-    }
-    
-    /* Form adjustments untuk layar kecil */
-    .periode-selector .radio-label {
-        padding: 10px;
-        font-size: 0.9em;
-    }
-    
-    .total-display strong {
-        font-size: 1em;
-    }
-    
-    .total-display-primary strong {
-        font-size: 1.1em;
-    }
+  .hero-badge {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+  }
+
+  .price-grid-2,
+  .price-grid-4,
+  .price-grid-5 {
+    grid-template-columns: 1fr;
+  }
+  
+  .nisab-hero-footer {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .footer-links {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .footer-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .footer-divider {
+    display: none;
+  }
+}
+/* ========================================
+   Additional: Loading & Error States
+   ======================================== */
+
+.price-value.loading {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.9rem;
+  animation: pulse-text 1.5s ease-in-out infinite;
 }
 
-/* ==========================================
-   UTILITY CLASSES
-   ========================================== */
-
-/* Hidden by default (untuk container switching) */
-.hidden {
-    display: none !important;
+@keyframes pulse-text {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
-/* Fade in animation */
-.fade-in {
-    animation: fadeIn 0.3s ease;
+.price-value.error {
+  color: var(--danger);
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
-/* Loading spinner (jika diperlukan) */
-.spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #667eea;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+.price-card.error {
+  opacity: 0.7;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.error-card {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 32px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.error-card p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.retry-btn {
+  padding: 8px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.retry-btn:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+/* Market Status Badges */
+.section-badge.success {
+  background: var(--success-muted);
+  color: var(--success);
+}
+
+.section-badge.warning {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--warning);
+}
+
+.section-badge.error {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--danger);
+}
+
+/* Live Indicator States */
+.live-indicator.offline {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--warning);
+}
+
+.live-indicator.offline .live-dot {
+  animation: none;
+}
+
+/* Loading Text in Nisab Card */
+.nisab-hero-value .loading-text {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Market Note */
+.market-note {
+  display: none; /* Sembunyikan karena sudah pakai edge function */
 }
