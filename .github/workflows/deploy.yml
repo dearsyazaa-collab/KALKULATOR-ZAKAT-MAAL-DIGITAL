@@ -1,0 +1,22 @@
+name: Deploy Website ke cPanel
+
+on:
+  push:
+    branches:
+      - main  # Ganti dengan 'master' jika branch utamamu bernama master
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Mengambil kode terbaru
+      uses: actions/checkout@v4
+
+    - name: 📂 Mengirim file via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: ./digitalzakatcalculator.my.id/
