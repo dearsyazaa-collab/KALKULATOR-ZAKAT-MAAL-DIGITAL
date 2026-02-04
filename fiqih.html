@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fiqih Harian — ZakatCalc</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <a href="index.html" class="logo">
+          <span class="logo-icon">◆</span>
+          <h1>ZakatCalc</h1>
+        </a>
+        <p class="tagline">Perhitungan Zakat yang Tepat & Terpercaya</p>
+      </div>
+      <nav class="nav" id="main-nav" aria-label="Navigasi utama">
+        <a href="index.html" class="nav-link">Beranda</a>
+        <a href="kalkulator.html" class="nav-link">Kalkulator</a>
+        <a href="dalil.html" class="nav-link">Dalil & Fatwa</a>
+        <a href="fiqih.html" class="nav-link active">Fiqih Harian</a>
+        <a href="laz.html" class="nav-link">LAZ / UPZ</a>
+      </nav>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </header>
+
+    <main>
+      <!-- Hero Section -->
+      <section class="fiqih-hero">
+        <div class="fiqih-hero-content">
+          <span class="hero-badge">
+            <span class="badge-icon">📚</span>
+            Panduan Lengkap
+          </span>
+          <h2 class="page-title">Fiqih Harian</h2>
+          <p class="page-desc">Panduan praktis fiqih ibadah sehari-hari berdasarkan Al-Quran, Hadits, dan pendapat ulama terpercaya.</p>
+          
+          <!-- Search Bar -->
+          <div class="fiqih-search">
+            <div class="search-input-wrapper">
+              <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <input 
+                type="text" 
+                id="search-input" 
+                class="search-input" 
+                placeholder="Cari topik... (contoh: wudhu, shalat, zakat)"
+                autocomplete="off"
+              >
+              <button type="button" class="search-clear" id="search-clear" style="display: none;" aria-label="Hapus pencarian">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Kitab Categories Section -->
+      <section class="fiqih-kitab-section" id="kitab-section">
+        <div class="section-header">
+          <h3 class="section-title">Pilih Kategori Kitab</h3>
+          <p class="section-desc">Pelajari fiqih berdasarkan kategori pembahasan</p>
+        </div>
+
+        <div class="kitab-grid" id="kitab-grid">
+          <!-- Kitab cards akan di-render oleh JavaScript -->
+          <div class="kitab-loading">
+            <div class="loading-spinner"></div>
+            <p>Memuat kategori...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bab/Sub-kategori Section (Hidden by default) -->
+      <section class="fiqih-bab-section" id="bab-section" style="display: none;">
+        <div class="section-header">
+          <button type="button" class="btn-back" id="btn-back-kitab">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Kembali ke Kategori
+          </button>
+          <div class="current-kitab" id="current-kitab">
+            <span class="kitab-icon" id="current-kitab-icon">📚</span>
+            <div>
+              <h3 class="section-title" id="current-kitab-nama">Nama Kitab</h3>
+              <p class="section-desc" id="current-kitab-desc">Deskripsi kitab</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bab-grid" id="bab-grid">
+          <!-- Bab cards akan di-render oleh JavaScript -->
+        </div>
+      </section>
+
+      <!-- Content Section (Hidden by default) -->
+      <section class="fiqih-content-section" id="content-section" style="display: none;">
+        <div class="section-header">
+          <button type="button" class="btn-back" id="btn-back-bab">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Kembali ke Sub-kategori
+          </button>
+          <div class="current-bab" id="current-bab">
+            <span class="bab-icon" id="current-bab-icon">📖</span>
+            <div>
+              <h3 class="section-title" id="current-bab-nama">Nama Bab</h3>
+              <p class="section-desc" id="current-bab-desc">Deskripsi bab</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="fiqih-loading" id="content-loading" style="display: none;">
+          <div class="loading-spinner"></div>
+          <p>Memuat konten...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div class="fiqih-empty" id="content-empty" style="display: none;">
+          <span class="empty-icon">📭</span>
+          <h4>Belum Ada Konten</h4>
+          <p>Konten untuk bab ini sedang dalam proses penyusunan.</p>
+        </div>
+
+        <!-- Content Cards -->
+        <div class="content-grid" id="content-grid">
+          <!-- Content cards akan di-render oleh JavaScript -->
+        </div>
+      </section>
+
+      <!-- Search Results Section (Hidden by default) -->
+      <section class="fiqih-search-results" id="search-results" style="display: none;">
+        <div class="section-header">
+          <button type="button" class="btn-back" id="btn-back-search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Kembali
+          </button>
+          <div>
+            <h3 class="section-title">Hasil Pencarian</h3>
+            <p class="section-desc" id="search-results-count">0 hasil ditemukan</p>
+          </div>
+        </div>
+
+        <!-- Search Loading -->
+        <div class="fiqih-loading" id="search-loading" style="display: none;">
+          <div class="loading-spinner"></div>
+          <p>Mencari...</p>
+        </div>
+
+        <!-- Search Empty -->
+        <div class="fiqih-empty" id="search-empty" style="display: none;">
+          <span class="empty-icon">🔍</span>
+          <h4>Tidak Ditemukan</h4>
+          <p>Coba gunakan kata kunci yang berbeda.</p>
+        </div>
+
+        <!-- Search Results Grid -->
+        <div class="content-grid" id="search-grid">
+          <!-- Search results akan di-render oleh JavaScript -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="logo-icon">◆</span>
+          <span>ZakatCalc</span>
+        </div>
+        <p class="footer-text">Panduan fiqih berdasarkan Al-Quran, Hadits, dan pendapat ulama terpercaya.</p>
+        <div class="footer-links">
+          <a href="index.html">Beranda</a>
+          <a href="kalkulator.html">Kalkulator</a>
+          <a href="dalil.html">Dalil & Fatwa</a>
+          <a href="fiqih.html">Fiqih Harian</a>
+          <a href="laz.html">LAZ / UPZ</a>
+        </div>
+        <div class="footer-meta">
+          <span>© 2026 ZakatCalc</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal modal-large" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+      <div class="modal-header">
+        <h2 id="detail-modal-title">Detail Pembahasan</h2>
+        <button type="button" class="close-btn" id="close-detail-modal" aria-label="Tutup">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="detail-modal-body">
+        <!-- Detail content akan di-render oleh JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <script src="fiqih.js"></script>
+</body>
+</html>
