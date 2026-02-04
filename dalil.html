@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dalil & Fatwa Zakat — Kalkulator Zakat Maal</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <a href="index.html" class="logo">
+          <span class="logo-icon">◆</span>
+          <h1>Kalkulator Zakat Maal</h1>
+        </a>
+        <p class="tagline">Perhitungan Zakat yang Tepat & Terpercaya</p>
+      </div>
+      <nav class="nav" id="main-nav" aria-label="Navigasi utama">
+        <a href="index.html" class="nav-link">Beranda</a>
+        <a href="kalkulator.html" class="nav-link">Kalkulator</a>
+        <a href="dalil.html" class="nav-link active">Dalil & Fatwa</a>
+        <a href="fiqih.html" class="nav-link">Fiqih Harian</a>
+        <a href="laz.html" class="nav-link">LAZ / UPZ</a>
+      </nav>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </header>
+
+    <main>
+      <!-- Hero Section -->
+      <section class="dalil-hero">
+        <div class="dalil-hero-content">
+          <span class="hero-badge">
+            <span class="badge-icon">📖</span>
+            Referensi Lengkap
+          </span>
+          <h2 class="page-title">Dalil & Fatwa Zakat</h2>
+          <p class="page-desc">Kumpulan dalil Al-Quran, Hadits, hukum fiqih, dan fatwa ulama tentang zakat maal berdasarkan kategori.</p>
+        </div>
+      </section>
+
+      <!-- Filter Section -->
+      <section class="dalil-filter-section">
+        <!-- Kategori Zakat -->
+        <div class="filter-group">
+          <label class="filter-label">Kategori Zakat</label>
+          <div class="filter-tabs" id="kategori-tabs">
+            <button type="button" class="filter-tab active" data-kategori="semua">Semua</button>
+            <button type="button" class="filter-tab" data-kategori="umum">Umum</button>
+            <button type="button" class="filter-tab" data-kategori="emas">Emas & Perak</button>
+            <button type="button" class="filter-tab" data-kategori="penghasilan">Penghasilan</button>
+            <button type="button" class="filter-tab" data-kategori="tabungan">Tabungan</button>
+            <button type="button" class="filter-tab" data-kategori="perdagangan">Perdagangan</button>
+            <button type="button" class="filter-tab" data-kategori="saham">Saham</button>
+            <button type="button" class="filter-tab" data-kategori="crypto">Crypto</button>
+            <button type="button" class="filter-tab" data-kategori="pertanian">Pertanian</button>
+            <button type="button" class="filter-tab" data-kategori="peternakan">Peternakan</button>
+          </div>
+        </div>
+
+        <!-- Sub Kategori -->
+        <div class="filter-group">
+          <label class="filter-label">Jenis Referensi</label>
+          <div class="filter-tabs" id="subkategori-tabs">
+            <button type="button" class="filter-tab active" data-sub="semua">Semua</button>
+            <button type="button" class="filter-tab" data-sub="dalil">
+              <span class="tab-icon">📜</span>
+              Dalil
+            </button>
+            <button type="button" class="filter-tab" data-sub="hukum">
+              <span class="tab-icon">⚖️</span>
+              Hukum
+            </button>
+            <button type="button" class="filter-tab" data-sub="fatwa">
+              <span class="tab-icon">🏛️</span>
+              Fatwa
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Content Section -->
+      <section class="dalil-content-section">
+        <!-- Loading State -->
+        <div class="dalil-loading" id="dalil-loading">
+          <div class="loading-spinner"></div>
+          <p>Memuat data...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div class="dalil-empty" id="dalil-empty" style="display: none;">
+          <span class="empty-icon">📭</span>
+          <h3>Tidak Ada Data</h3>
+          <p>Tidak ditemukan dalil atau fatwa untuk kategori ini.</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="dalil-error" id="dalil-error" style="display: none;">
+          <span class="error-icon">⚠️</span>
+          <h3>Gagal Memuat Data</h3>
+          <p>Terjadi kesalahan saat mengambil data. Silakan coba lagi.</p>
+          <button type="button" class="btn-retry" id="btn-retry">Coba Lagi</button>
+        </div>
+
+        <!-- Dalil Cards Grid -->
+        <div class="dalil-grid" id="dalil-grid">
+          <!-- Cards akan di-render oleh JavaScript -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="logo-icon">◆</span>
+          <span>ZakatCalc</span>
+        </div>
+        <p class="footer-text">Referensi zakat berdasarkan Al-Quran, Hadits, dan fatwa ulama terpercaya.</p>
+        <div class="footer-links">
+          <a href="index.html">Beranda</a>
+          <a href="kalkulator.html">Kalkulator</a>
+          <a href="dalil.html">Dalil & Fatwa</a>
+          <a href="fiqih.html">Fiqih Harian</a>
+          <a href="laz.html">LAZ / UPZ</a>
+        </div>
+        <div class="footer-meta">
+          <span>© 2026 ZakatCalc</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="dalil.js"></script>
+</body>
+</html>

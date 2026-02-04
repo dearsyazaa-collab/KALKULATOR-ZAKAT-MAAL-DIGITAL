@@ -2054,3 +2054,424 @@ a {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
+/* ========================================
+   Dalil & Fatwa Page Styles
+   ======================================== */
+
+/* Hero */
+.dalil-hero {
+  padding: 48px 0 32px;
+  text-align: center;
+}
+
+.dalil-hero-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.dalil-hero .hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--accent-gold-muted);
+  color: var(--accent-gold);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 100px;
+  margin-bottom: 20px;
+}
+
+.dalil-hero .page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-gold-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dalil-hero .page-desc {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* Filter Section */
+.dalil-filter-section {
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-tab:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.filter-tab.active {
+  background: var(--accent-gold-muted);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold-light);
+}
+
+.filter-tab .tab-icon {
+  font-size: 1rem;
+}
+
+/* Content Section */
+.dalil-content-section {
+  padding: 24px 0 48px;
+  min-height: 400px;
+}
+
+/* Loading State */
+.dalil-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 64px 24px;
+  color: var(--text-muted);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--surface-border);
+  border-top-color: var(--accent-gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.dalil-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.dalil-empty .empty-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.dalil-empty h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.dalil-empty p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Error State */
+.dalil-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.dalil-error .error-icon {
+  font-size: 3rem;
+}
+
+.dalil-error h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.dalil-error p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.btn-retry {
+  margin-top: 8px;
+  padding: 10px 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-retry:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+/* Dalil Grid */
+.dalil-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+/* Dalil Card */
+.dalil-card {
+  background: var(--bg-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all var(--transition-normal);
+}
+
+.dalil-card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.dalil-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dalil-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dalil-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dalil-badge .badge-icon {
+  font-size: 0.85rem;
+}
+
+.dalil-badge.dalil {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.dalil-badge.hukum {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+}
+
+.dalil-badge.fatwa {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+.dalil-badge.kategori {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+.dalil-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Arabic Text */
+.dalil-arab {
+  background: var(--surface-1);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: right;
+}
+
+.arab-text {
+  font-family: 'Amiri', serif;
+  font-size: 1.5rem;
+  line-height: 2;
+  color: var(--accent-gold-light);
+  margin: 0;
+  direction: rtl;
+}
+
+/* Latin Transliteration */
+.dalil-latin {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Terjemahan */
+.dalil-terjemahan {
+  flex: 1;
+}
+
+.dalil-terjemahan p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Footer / Sumber */
+.dalil-card-footer {
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dalil-sumber {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.sumber-label {
+  color: var(--text-muted);
+}
+
+.dalil-sumber-text {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.dalil-sumber-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent-emerald);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.dalil-sumber-link:hover {
+  color: var(--accent-gold-light);
+  text-decoration: underline;
+}
+
+.dalil-sumber-detail {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dalil-hero .page-title {
+    font-size: 2rem;
+  }
+
+  .dalil-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-tab {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+
+  .arab-text {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dalil-hero {
+    padding: 32px 0 24px;
+  }
+
+  .dalil-hero .page-title {
+    font-size: 1.75rem;
+  }
+
+  .dalil-card {
+    padding: 20px;
+  }
+
+  .dalil-badges {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
