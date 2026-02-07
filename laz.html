@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LAZ / UPZ — ZakatCalc</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <a href="index.html" class="logo">
+          <span class="logo-icon">◆</span>
+          <h1>ZakatCalc</h1>
+        </a>
+        <p class="tagline">Perhitungan Zakat yang Tepat & Terpercaya</p>
+      </div>
+      <nav class="nav" id="main-nav" aria-label="Navigasi utama">
+        <a href="index.html" class="nav-link">Beranda</a>
+        <a href="kalkulator.html" class="nav-link">Kalkulator</a>
+        <a href="dalil.html" class="nav-link">Dalil & Fatwa</a>
+        <a href="fiqih.html" class="nav-link">Fiqih Harian</a>
+        <a href="laz.html" class="nav-link active">LAZ / UPZ</a>
+      </nav>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="laz-hero">
+        <div class="laz-hero-content">
+          <span class="hero-badge">
+            <span class="badge-icon">🏛️</span>
+            Penyalur Resmi
+          </span>
+          <h2 class="page-title">Lembaga Amil Zakat</h2>
+          <p class="page-desc">Temukan lembaga penyalur zakat resmi dan terpercaya di daerah Anda.</p>
+        </div>
+      </section>
+
+      <!-- Main Content: Map + Sidebar -->
+      <section class="laz-main">
+        <!-- Sidebar Filter -->
+        <aside class="laz-sidebar" id="laz-sidebar">
+          <!-- Search -->
+          <div class="sidebar-search">
+            <div class="search-input-wrapper">
+              <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <input type="text" id="laz-search" class="search-input" placeholder="Cari nama LAZ...">
+            </div>
+          </div>
+
+          <!-- Filter Wilayah -->
+          <div class="sidebar-filters">
+            <div class="filter-item">
+              <label class="filter-label" for="filter-provinsi">Provinsi</label>
+              <select id="filter-provinsi" class="form-select">
+                <option value="">-- Semua Provinsi --</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label class="filter-label" for="filter-kabupaten">Kabupaten / Kota</label>
+              <select id="filter-kabupaten" class="form-select" disabled>
+                <option value="">-- Pilih Provinsi Dulu --</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label class="filter-label" for="filter-kecamatan">Kecamatan</label>
+              <select id="filter-kecamatan" class="form-select" disabled>
+                <option value="">-- Pilih Kabupaten Dulu --</option>
+              </select>
+            </div>
+
+            <!-- Filter Tipe -->
+            <div class="filter-item">
+              <label class="filter-label">Jenis Lembaga</label>
+              <div class="filter-chips" id="filter-tipe">
+                <button type="button" class="filter-chip active" data-tipe="semua">Semua</button>
+                <button type="button" class="filter-chip" data-tipe="baznas">BAZNAS</button>
+                <button type="button" class="filter-chip" data-tipe="laz_nasional">LAZ Nasional</button>
+                <button type="button" class="filter-chip" data-tipe="laz_provinsi">LAZ Provinsi</button>
+                <button type="button" class="filter-chip" data-tipe="upz">UPZ</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Count -->
+          <div class="sidebar-results-header">
+            <span id="results-count">0 lembaga ditemukan</span>
+            <button type="button" class="btn-reset-filter" id="btn-reset-filter" style="display:none;">
+              Reset Filter
+            </button>
+          </div>
+
+          <!-- Results List -->
+          <div class="sidebar-results" id="laz-results">
+            <div class="laz-loading" id="laz-loading">
+              <div class="loading-spinner"></div>
+              <p>Memuat data...</p>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Map -->
+        <div class="laz-map-container">
+          <div id="laz-map" class="laz-map"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer footer-compact">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="logo-icon">◆</span>
+          <span>ZakatCalc</span>
+        </div>
+        <div class="footer-meta">
+          <span>© 2026 ZakatCalc</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="laz-detail-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal modal-large" role="dialog" aria-modal="true" aria-labelledby="laz-detail-title">
+      <div class="modal-header">
+        <h2 id="laz-detail-title">Detail Lembaga</h2>
+        <button type="button" class="close-btn" id="close-laz-modal" aria-label="Tutup">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="laz-detail-body"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="laz.js"></script>
+</body>
+</html>

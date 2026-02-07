@@ -1,5 +1,6 @@
 /* ========================================
    ZakatCalc — Kalkulator Page Script
+   Updated: Zakat Pertanian & Peternakan
    ======================================== */
 
 (function() {
@@ -13,7 +14,6 @@
     KURS_USD_IDR: 16200,
     NISAB_EMAS_GRAM: 85,
     NISAB_PERAK_GRAM: 595,
-    NISAB_PERTANIAN_KG: 653,
     PERSENTASE_ZAKAT: 2.5,
     FALLBACK: {
       emas: 1350000,
@@ -21,7 +21,7 @@
     }
   };
 
-  // Data Lists
+  // Data Crypto
   const CRYPTO_LIST = [
     { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin' },
     { id: 'ethereum', symbol: 'ETH', name: 'Ethereum' },
@@ -31,6 +31,7 @@
     { id: 'solana', symbol: 'SOL', name: 'Solana' }
   ];
 
+  // Data Saham
   const STOCK_LIST = [
     { code: 'BBCA', name: 'Bank BCA' },
     { code: 'BBRI', name: 'Bank BRI' },
@@ -42,36 +43,61 @@
     { code: 'ICBP', name: 'Indofood CBP' }
   ];
 
+  // Data Komoditas Pertanian (Fallback)
+  const KOMODITAS_DEFAULT = [
+    { id: 'padi', nama: 'Padi/Gabah', harga_per_kg: 6500, nisab_kg: 653, icon: '🌾' },
+    { id: 'beras', nama: 'Beras', harga_per_kg: 14000, nisab_kg: 520, icon: '🍚' },
+    { id: 'jagung', nama: 'Jagung', harga_per_kg: 5500, nisab_kg: 653, icon: '🌽' },
+    { id: 'gandum', nama: 'Gandum', harga_per_kg: 8000, nisab_kg: 653, icon: '🌿'},
+    { id: 'kedelai', nama: 'Kedelai', harga_per_kg: 12000, nisab_kg: 653, icon: '🫘' },
+    { id: 'kacang_tanah', nama: 'Kacang Tanah', harga_per_kg: 28000, nisab_kg: 653, icon: '🥜' },
+    { id: 'sagu', nama: 'Sagu', harga_per_kg: 15000, nisab_kg: 520, icon: '🥣 '} , 
+    { id: 'ubi', nama: 'Ubi/Singkong', harga_per_kg: 4000, nisab_kg: 653, icon: '🍠'}
+  ];
+
   // Nisab Peternakan
   const NISAB_TERNAK = {
-    kambing: { nisab: 40, label: '40 ekor' },
-    sapi: { nisab: 30, label: '30 ekor' },
-    unta: { nisab: 5, label: '5 ekor' }
+    kambing: { nisab: 40, label: '40 ekor', nama: 'Kambing/Domba' },
+    sapi: { nisab: 30, label: '30 ekor', nama: 'Sapi/Kerbau' },
+    unta: { nisab: 5, label: '5 ekor', nama: 'Unta' }
   };
 
-  // Zakat Peternakan Tables
+  // Tabel Zakat Kambing/Domba (Lengkap)
   const ZAKAT_KAMBING = [
-    { min: 40, max: 120, zakat: '1 ekor kambing (umur 1 tahun)' },
-    { min: 121, max: 200, zakat: '2 ekor kambing' },
-    { min: 201, max: 399, zakat: '3 ekor kambing' },
-    { min: 400, max: 499, zakat: '4 ekor kambing' },
-    { min: 500, max: 599, zakat: '5 ekor kambing' }
+    { min: 40, max: 120, jumlah: 1, desc: '1 ekor kambing betina umur 1 tahun (atau domba betina umur 2 tahun)' },
+    { min: 121, max: 200, jumlah: 2, desc: '2 ekor kambing betina umur 1 tahun' },
+    { min: 201, max: 300, jumlah: 3, desc: '3 ekor kambing betina umur 1 tahun' },
+    { min: 301, max: 400, jumlah: 4, desc: '4 ekor kambing betina umur 1 tahun' },
+    { min: 401, max: 500, jumlah: 5, desc: '5 ekor kambing betina umur 1 tahun' }
+    // Setiap bertambah 100 ekor, zakat bertambah 1 ekor kambing
   ];
 
+  // Tabel Zakat Sapi/Kerbau (Lengkap hingga 120+)
   const ZAKAT_SAPI = [
-    { min: 30, max: 39, zakat: '1 ekor anak sapi (umur 1 tahun)' },
-    { min: 40, max: 59, zakat: '1 ekor anak sapi (umur 2 tahun)' },
-    { min: 60, max: 69, zakat: '2 ekor anak sapi (umur 1 tahun)' },
-    { min: 70, max: 79, zakat: '1 ekor anak sapi (1 thn) + 1 ekor (2 thn)' },
-    { min: 80, max: 89, zakat: '2 ekor anak sapi (umur 2 tahun)' }
+    { min: 30, max: 39, tabi: 1, musinnah: 0, desc: "1 ekor tabi' (sapi jantan/betina umur 1 tahun)" },
+    { min: 40, max: 59, tabi: 0, musinnah: 1, desc: "1 ekor musinnah (sapi betina umur 2 tahun)" },
+    { min: 60, max: 69, tabi: 2, musinnah: 0, desc: "2 ekor tabi' (sapi umur 1 tahun)" },
+    { min: 70, max: 79, tabi: 1, musinnah: 1, desc: "1 ekor tabi' + 1 ekor musinnah" },
+    { min: 80, max: 89, tabi: 0, musinnah: 2, desc: "2 ekor musinnah (sapi betina umur 2 tahun)" },
+    { min: 90, max: 99, tabi: 3, musinnah: 0, desc: "3 ekor tabi'" },
+    { min: 100, max: 109, tabi: 1, musinnah: 2, desc: "1 ekor tabi' + 2 ekor musinnah" },
+    { min: 110, max: 119, tabi: 2, musinnah: 1, desc: "2 ekor tabi' + 1 ekor musinnah" }
+    // 120+ dihitung dengan rumus: setiap 30 ekor = 1 tabi', setiap 40 ekor = 1 musinnah
   ];
 
+  // Tabel Zakat Unta (Lengkap)
   const ZAKAT_UNTA = [
-    { min: 5, max: 9, zakat: '1 ekor kambing' },
-    { min: 10, max: 14, zakat: '2 ekor kambing' },
-    { min: 15, max: 19, zakat: '3 ekor kambing' },
-    { min: 20, max: 24, zakat: '4 ekor kambing' },
-    { min: 25, max: 35, zakat: '1 ekor unta bintu makhad (umur 1 tahun)' }
+    { min: 5, max: 9, desc: '1 ekor kambing/domba' },
+    { min: 10, max: 14, desc: '2 ekor kambing/domba' },
+    { min: 15, max: 19, desc: '3 ekor kambing/domba' },
+    { min: 20, max: 24, desc: '4 ekor kambing/domba' },
+    { min: 25, max: 35, desc: '1 ekor bintu makhad (unta betina umur 1 tahun)' },
+    { min: 36, max: 45, desc: '1 ekor bintu labun (unta betina umur 2 tahun)' },
+    { min: 46, max: 60, desc: '1 ekor hiqqah (unta betina umur 3 tahun)' },
+    { min: 61, max: 75, desc: "1 ekor jadz'ah (unta betina umur 4 tahun)" },
+    { min: 76, max: 90, desc: '2 ekor bintu labun (unta betina umur 2 tahun)' },
+    { min: 91, max: 120, desc: '2 ekor hiqqah (unta betina umur 3 tahun)' }
+    // 121+ dihitung dengan rumus kombinasi
   ];
 
   // ===== STATE =====
@@ -82,7 +108,9 @@
     cryptoPrices: {},
     currentStockPrice: 0,
     currentType: null,
-    isLive: false
+    isLive: false,
+    komoditasList: [],
+    selectedKomoditas: null
   };
 
   // ===== DOM ELEMENTS =====
@@ -102,6 +130,18 @@
   function formatRupiah(angka) {
     if (!angka || isNaN(angka)) return 'Rp 0';
     return 'Rp ' + Math.round(angka).toLocaleString('id-ID');
+  }
+
+  function formatAngka(angka) {
+    if (!angka || isNaN(angka)) return '0';
+    if (Number.isInteger(angka)) {
+      return angka.toLocaleString('id-ID');
+    }
+    const rounded = Math.round(angka * 100) / 100;
+    if (Number.isInteger(rounded)) {
+      return rounded.toLocaleString('id-ID');
+    }
+    return rounded.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
   }
 
   function parseRupiah(str) {
@@ -209,6 +249,34 @@
     }
   }
 
+  async function fetchKomoditasPrices() {
+    try {
+      const response = await fetch(
+        `${CONFIG.SUPABASE_URL}/rest/v1/harga_komoditas?order=id.asc`,
+        {
+          headers: {
+            'apikey': CONFIG.SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      if (!response.ok) throw new Error('Supabase Error');
+
+      const data = await response.json();
+      if (data && data.length > 0) {
+        state.komoditasList = data;
+        console.log(`✅ Loaded ${data.length} komoditas from database`);
+        return data;
+      }
+      throw new Error('No data');
+    } catch (error) {
+      console.warn('⚠️ Komoditas fetch error:', error.message, '- using fallback');
+      state.komoditasList = KOMODITAS_DEFAULT;
+      return KOMODITAS_DEFAULT;
+    }
+  }
+
   // ===== NISAB BAR =====
   function renderNisabBar() {
     const nisabEl = $('#nisab-rupiah');
@@ -256,13 +324,10 @@
     modalEl.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     
-    // Init form after rendering
     setTimeout(() => initForm(type), 10);
   }
 
   function closeCalculator() {
-    console.log('Closing calculator');
-    
     if (!modalEl) return;
     
     modalEl.classList.remove('active');
@@ -270,6 +335,7 @@
     document.body.style.overflow = '';
     state.currentType = null;
     state.currentStockPrice = 0;
+    state.selectedKomoditas = null;
   }
 
   // ===== SHOW HASIL =====
@@ -281,6 +347,11 @@
       `<div class="result-row"><span>${item.label}</span><span>${item.value}</span></div>`
     ).join('');
 
+    let extraInfoHTML = '';
+    if (data.extraInfo) {
+      extraInfoHTML = `<div class="result-extra-info">${data.extraInfo}</div>`;
+    }
+
     if (wajib) {
       container.innerHTML = `
         <div class="result-card success">
@@ -290,6 +361,7 @@
           </div>
           <div class="result-amount">${data.zakat}</div>
           ${data.zakatAlt ? `<p class="result-alt">${data.zakatAlt}</p>` : ''}
+          ${extraInfoHTML}
           <div class="result-details">${itemsHTML}</div>
         </div>
       `;
@@ -338,7 +410,6 @@
             <li>Haul: 1 tahun</li>
           </ul>
         </div>
-
         <div class="form-group">
           <span class="form-label">Jenis Logam</span>
           <div class="radio-group">
@@ -352,17 +423,14 @@
             </label>
           </div>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="berat-logam">Berat (gram)</label>
           <input type="text" id="berat-logam" class="form-input" placeholder="Contoh: 100" inputmode="decimal">
         </div>
-
         <div class="form-group">
           <span class="form-label">Harga per Gram</span>
           <div class="form-static" id="harga-logam-display">${formatRupiah(state.hargaEmas)}</div>
         </div>
-
         <div class="calc-summary">
           <div class="summary-row">
             <span>Total Nilai</span>
@@ -373,7 +441,6 @@
             <span id="nilai-nisab">${formatRupiah(state.nisab)}</span>
           </div>
         </div>
-
         <button type="button" class="btn-calculate" id="btn-hitung">Hitung Zakat</button>
         <div id="hasil-zakat"></div>
       </div>
@@ -392,7 +459,6 @@
             <li>Tidak perlu haul</li>
           </ul>
         </div>
-
         <div class="form-group">
           <span class="form-label">Periode</span>
           <div class="radio-group">
@@ -406,7 +472,6 @@
             </label>
           </div>
         </div>
-
         <div class="form-section-title">Pendapatan</div>
         <div class="form-group">
           <label class="form-label" for="gaji">Gaji / Pendapatan Utama</label>
@@ -416,7 +481,6 @@
           <label class="form-label" for="pendapatan-lain">Pendapatan Lain</label>
           <input type="text" id="pendapatan-lain" class="form-input" placeholder="0" inputmode="numeric">
         </div>
-
         <div class="form-section-title">Pengeluaran (Opsional)</div>
         <div class="form-group">
           <label class="form-label" for="kebutuhan-pokok">Kebutuhan Pokok</label>
@@ -426,7 +490,6 @@
           <label class="form-label" for="cicilan">Cicilan / Hutang</label>
           <input type="text" id="cicilan" class="form-input" placeholder="0" inputmode="numeric">
         </div>
-
         <div class="calc-summary">
           <div class="summary-row">
             <span>Pendapatan Bersih</span>
@@ -437,7 +500,6 @@
             <span id="nilai-nisab">${formatRupiah(nisabBulanan)}</span>
           </div>
         </div>
-
         <button type="button" class="btn-calculate" id="btn-hitung">Hitung Zakat</button>
         <div id="hasil-zakat"></div>
       </div>
@@ -455,13 +517,11 @@
             <li>Haul: 1 tahun penuh</li>
           </ul>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="saldo">Saldo Tabungan / Deposito</label>
           <input type="text" id="saldo" class="form-input" placeholder="0" inputmode="numeric">
           <small class="form-hint">Gunakan saldo terendah selama 1 tahun</small>
         </div>
-
         <div class="calc-summary">
           <div class="summary-row">
             <span>Saldo</span>
@@ -472,7 +532,6 @@
             <span>${formatRupiah(state.nisab)}</span>
           </div>
         </div>
-
         <button type="button" class="btn-calculate" id="btn-hitung">Hitung Zakat</button>
         <div id="hasil-zakat"></div>
       </div>
@@ -491,7 +550,6 @@
             <li>Haul: 1 tahun</li>
           </ul>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="modal">Modal Usaha</label>
           <input type="text" id="modal" class="form-input" placeholder="0" inputmode="numeric">
@@ -508,7 +566,6 @@
           <label class="form-label" for="hutang">Hutang Usaha</label>
           <input type="text" id="hutang" class="form-input" placeholder="0" inputmode="numeric">
         </div>
-
         <div class="calc-summary">
           <div class="summary-row">
             <span>Total Aset</span>
@@ -523,7 +580,6 @@
             <span id="harta-bersih">Rp 0</span>
           </div>
         </div>
-
         <button type="button" class="btn-calculate" id="btn-hitung">Hitung Zakat</button>
         <div id="hasil-zakat"></div>
       </div>
@@ -542,7 +598,6 @@
             <li>Haul: 1 tahun</li>
           </ul>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="pilih-saham">Pilih Saham</label>
           <select id="pilih-saham" class="form-select">
@@ -550,13 +605,11 @@
             ${options}
           </select>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="jumlah-lot">Jumlah Lot</label>
           <input type="text" id="jumlah-lot" class="form-input" placeholder="Contoh: 10" inputmode="numeric">
           <small class="form-hint">1 lot = 100 lembar</small>
         </div>
-
         <div class="form-group">
           <span class="form-label">Harga per Lembar</span>
           <div class="form-static-with-badge">
@@ -564,12 +617,10 @@
             <span class="badge-live" id="badge-saham" style="display:none;">LIVE</span>
           </div>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="dividen">Dividen Diterima (per tahun)</label>
           <input type="text" id="dividen" class="form-input" placeholder="0" inputmode="numeric">
         </div>
-
         <div class="calc-summary">
           <div class="summary-row">
             <span>Nilai Saham</span>
@@ -584,7 +635,6 @@
             <span id="total-saham">Rp 0</span>
           </div>
         </div>
-
         <button type="button" class="btn-calculate" id="btn-hitung">Hitung Zakat</button>
         <div id="hasil-zakat"></div>
       </div>
@@ -603,7 +653,6 @@
             <li>Haul: 1 tahun</li>
           </ul>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="pilih-crypto">Pilih Cryptocurrency</label>
           <select id="pilih-crypto" class="form-select">
@@ -611,12 +660,10 @@
             ${options}
           </select>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="jumlah-crypto">Jumlah Koin</label>
           <input type="text" id="jumlah-crypto" class="form-input" placeholder="Contoh: 0.5" inputmode="decimal">
         </div>
-
         <div class="form-group">
           <span class="form-label">Harga per Koin</span>
           <div class="form-static-with-badge">
@@ -624,7 +671,6 @@
             <span class="badge-live" id="badge-crypto" style="display:none;">LIVE</span>
           </div>
         </div>
-
         <div class="calc-summary">
           <div class="summary-row highlight">
             <span>Total Nilai</span>
@@ -635,45 +681,78 @@
             <span>${formatRupiah(state.nisab)}</span>
           </div>
         </div>
-
         <button type="button" class="btn-calculate" id="btn-hitung">Hitung Zakat</button>
         <div id="hasil-zakat"></div>
       </div>
     `;
   }
 
+    // ===== FORM PERTANIAN (FIXED) =====
   function formPertanian() {
+    // Pastikan komoditas ada, jika belum pakai fallback
+    if (state.komoditasList.length === 0) {
+      state.komoditasList = KOMODITAS_DEFAULT;
+    }
+
+    const komoditasOptions = state.komoditasList.map(k => 
+      `<option value="${k.id}">${k.icon || '🌾'} ${k.nama}</option>`
+    ).join('');
+
     return `
       <div class="calc-form">
         <div class="info-box">
-          <strong>Ketentuan:</strong>
+          <strong>Ketentuan Zakat Pertanian:</strong>
           <ul>
-            <li>Nisab: 653 kg gabah / 520 kg beras</li>
-            <li>Tadah hujan: 10%</li>
-            <li>Irigasi berbayar: 5%</li>
-            <li>Dikeluarkan saat panen (tanpa haul)</li>
+            <li>Nisab: 5 wasaq ≈ <strong>653 kg gabah</strong> atau <strong>520 kg beras</strong></li>
+            <li>Tadah hujan/sungai/mata air: <strong>10%</strong></li>
+            <li>Irigasi berbayar (pompa/diesel): <strong>5%</strong></li>
+            <li>Dikeluarkan <strong>saat panen</strong> (tanpa menunggu haul)</li>
           </ul>
         </div>
-
+        <div class="form-group">
+          <label class="form-label" for="pilih-komoditas">Jenis Hasil Pertanian</label>
+          <select id="pilih-komoditas" class="form-select">
+            <option value="">-- Pilih Jenis Hasil Panen --</option>
+            ${komoditasOptions}
+          </select>
+        </div>
+        <div class="form-group" id="komoditas-info-group" style="display: none;">
+          <div class="komoditas-info-card">
+            <div class="komoditas-info-header">
+              <span class="komoditas-icon" id="komoditas-icon">🌾</span>
+              <div class="komoditas-info-text">
+                <span class="komoditas-nama" id="komoditas-nama">-</span>
+              </div>
+            </div>
+            <div class="komoditas-info-details">
+              <div class="komoditas-detail-item">
+                <span class="detail-label">Harga/kg</span>
+                <span class="detail-value" id="komoditas-harga">Rp 0</span>
+              </div>
+              <div class="komoditas-detail-item">
+                <span class="detail-label">Nisab</span>
+                <span class="detail-value" id="komoditas-nisab">0 kg</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="form-group">
           <span class="form-label">Jenis Pengairan</span>
           <div class="radio-group">
             <label class="radio-option">
               <input type="radio" name="pengairan" value="hujan" checked>
-              <span>Tadah Hujan (10%)</span>
+              <span>🌧️ Tadah Hujan (10%)</span>
             </label>
             <label class="radio-option">
               <input type="radio" name="pengairan" value="irigasi">
-              <span>Irigasi Berbayar (5%)</span>
+              <span>💧 Irigasi Berbayar (5%)</span>
             </label>
           </div>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="hasil-panen">Hasil Panen (kg)</label>
           <input type="text" id="hasil-panen" class="form-input" placeholder="Contoh: 1000" inputmode="numeric">
         </div>
-
         <div class="calc-summary">
           <div class="summary-row">
             <span>Hasil Panen</span>
@@ -681,51 +760,59 @@
           </div>
           <div class="summary-row">
             <span>Nisab</span>
-            <span>653 kg</span>
+            <span id="nilai-nisab-pertanian">653 kg</span>
           </div>
           <div class="summary-row">
             <span>Kadar Zakat</span>
             <span id="kadar-zakat">10%</span>
           </div>
+          <div class="summary-row highlight">
+            <span>Estimasi Nilai Panen</span>
+            <span id="estimasi-nilai">Rp 0</span>
+          </div>
         </div>
-
         <button type="button" class="btn-calculate" id="btn-hitung">Hitung Zakat</button>
         <div id="hasil-zakat"></div>
       </div>
     `;
   }
 
+    // ===== FORM PETERNAKAN (FIXED) =====
   function formPeternakan() {
     return `
       <div class="calc-form">
         <div class="info-box">
-          <strong>Ketentuan:</strong>
+          <strong>Ketentuan Zakat Peternakan:</strong>
           <ul>
-            <li>Kambing/Domba: Nisab 40 ekor</li>
-            <li>Sapi/Kerbau: Nisab 30 ekor</li>
-            <li>Unta: Nisab 5 ekor</li>
+            <li><strong>Kambing/Domba:</strong> Nisab 40 ekor</li>
+            <li><strong>Sapi/Kerbau:</strong> Nisab 30 ekor</li>
+            <li><strong>Unta:</strong> Nisab 5 ekor</li>
             <li>Haul: 1 tahun</li>
+            <li>Syarat: digembalakan (saimah), bukan untuk diperdagangkan</li>
           </ul>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="jenis-ternak">Jenis Ternak</label>
           <select id="jenis-ternak" class="form-select">
-            <option value="">-- Pilih Jenis --</option>
-            <option value="kambing">Kambing / Domba</option>
-            <option value="sapi">Sapi / Kerbau</option>
-            <option value="unta">Unta</option>
+            <option value="">-- Pilih Jenis Ternak --</option>
+            <option value="kambing">🐐 Kambing / Domba</option>
+            <option value="sapi">🐄 Sapi / Kerbau</option>
+            <option value="unta">🐪 Unta</option>
           </select>
         </div>
-
+        <div class="form-group" id="ternak-info-group" style="display: none;">
+          <div class="ternak-info-card">
+            <div class="ternak-info-title" id="ternak-info-title">📋 Tabel Zakat</div>
+            <div class="ternak-info-content" id="ternak-info-content"></div>
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label" for="jumlah-ternak">Jumlah Ternak (ekor)</label>
           <input type="text" id="jumlah-ternak" class="form-input" placeholder="Contoh: 50" inputmode="numeric">
         </div>
-
         <div class="calc-summary">
           <div class="summary-row">
-            <span>Jumlah</span>
+            <span>Jumlah Ternak</span>
             <span id="total-ternak">0 ekor</span>
           </div>
           <div class="summary-row">
@@ -733,7 +820,6 @@
             <span id="nisab-ternak">-</span>
           </div>
         </div>
-
         <button type="button" class="btn-calculate" id="btn-hitung">Hitung Zakat</button>
         <div id="hasil-zakat"></div>
       </div>
@@ -743,7 +829,6 @@
   // ===== FORM INITIALIZATION =====
   function initForm(type) {
     console.log('Initializing form:', type);
-    
     switch (type) {
       case 'emas': initFormEmas(); break;
       case 'penghasilan': initFormPenghasilan(); break;
@@ -756,7 +841,7 @@
     }
   }
 
-  // ===== EMAS =====
+  // ===== EMAS FUNCTIONS =====
   function initFormEmas() {
     const radioInputs = $$('input[name="jenis-logam"]');
     const beratInput = $('#berat-logam');
@@ -809,18 +894,18 @@
 
     showHasil(wajib, {
       items: [
-        { label: `Berat ${jenis}`, value: `${berat} gram` },
+        { label: `Berat ${jenis}`, value: `${formatAngka(berat)} gram` },
         { label: 'Harga/gram', value: formatRupiah(harga) },
         { label: 'Total nilai', value: formatRupiah(totalNilai) },
         { label: 'Nisab', value: `${nisabGram}g (${formatRupiah(nisabRupiah)})` }
       ],
       zakat: formatRupiah(zakat),
-      zakatAlt: `atau ${zakatGram.toFixed(2)} gram ${jenis}`,
+      zakatAlt: `atau ${formatAngka(zakatGram)} gram ${jenis}`,
       kekurangan: wajib ? null : formatRupiah(nisabRupiah - totalNilai)
     });
   }
 
-  // ===== PENGHASILAN =====
+  // ===== PENGHASILAN FUNCTIONS =====
   function initFormPenghasilan() {
     const radioInputs = $$('input[name="periode"]');
     const inputs = ['#gaji', '#pendapatan-lain', '#kebutuhan-pokok', '#cicilan'];
@@ -882,7 +967,7 @@
     });
   }
 
-  // ===== TABUNGAN =====
+  // ===== TABUNGAN FUNCTIONS =====
   function initFormTabungan() {
     const saldoInput = $('#saldo');
     const btnHitung = $('#btn-hitung');
@@ -914,7 +999,7 @@
     });
   }
 
-  // ===== PERDAGANGAN =====
+  // ===== PERDAGANGAN FUNCTIONS =====
   function initFormPerdagangan() {
     const inputs = ['#modal', '#laba', '#piutang', '#hutang'];
     const btnHitung = $('#btn-hitung');
@@ -969,7 +1054,7 @@
     });
   }
 
-  // ===== SAHAM =====
+  // ===== SAHAM FUNCTIONS =====
   function initFormSaham() {
     const selectSaham = $('#pilih-saham');
     const lotInput = $('#jumlah-lot');
@@ -1017,7 +1102,6 @@
       if (display) display.textContent = 'Gagal memuat harga';
       state.currentStockPrice = 0;
     }
-    
     calcSaham();
   }
 
@@ -1053,7 +1137,7 @@
     showHasil(wajib, {
       items: [
         { label: 'Saham', value: code },
-        { label: 'Jumlah', value: `${lot} lot (${lembar} lembar)` },
+        { label: 'Jumlah', value: `${formatAngka(lot)} lot (${formatAngka(lembar)} lembar)` },
         { label: 'Harga', value: formatRupiah(state.currentStockPrice) },
         { label: 'Nilai saham', value: formatRupiah(nilaiSaham) },
         { label: 'Dividen', value: formatRupiah(dividen) },
@@ -1064,16 +1148,15 @@
     });
   }
 
-  // ===== CRYPTO =====
+  // ===== CRYPTO FUNCTIONS =====
   function initFormCrypto() {
     const selectCrypto = $('#pilih-crypto');
     const jumlahInput = $('#jumlah-crypto');
     const btnHitung = $('#btn-hitung');
 
-    // Load crypto prices
     fetchCryptoPrices().then(prices => {
       state.cryptoPrices = prices;
-      console.log('Crypto prices loaded:', Object.keys(prices).length);
+      console.log('✅ Crypto prices loaded:', Object.keys(prices).length);
     });
 
     if (selectCrypto) selectCrypto.addEventListener('change', updateHargaCrypto);
@@ -1115,14 +1198,15 @@
     const harga = state.cryptoPrices[symbol] || 0;
     if (harga <= 0) return alert('Harga crypto belum tersedia');
 
-    const total = jumlah * harga;
+    const total = jumlah
+        total = jumlah * harga;
     const wajib = total >= state.nisab;
     const zakat = wajib ? total * 0.025 : 0;
 
     showHasil(wajib, {
       items: [
         { label: 'Crypto', value: symbol },
-        { label: 'Jumlah', value: `${jumlah} ${symbol}` },
+        { label: 'Jumlah', value: `${formatAngka(jumlah)} ${symbol}` },
         { label: 'Harga', value: formatRupiah(harga) },
         { label: 'Total nilai', value: formatRupiah(total) },
         { label: 'Nisab', value: formatRupiah(state.nisab) }
@@ -1132,113 +1216,404 @@
     });
   }
 
-  // ===== PERTANIAN =====
+  // ===== PERTANIAN FUNCTIONS (UPDATED) =====
   function initFormPertanian() {
+    const selectKomoditas = $('#pilih-komoditas');
     const radioInputs = $$('input[name="pengairan"]');
     const panenInput = $('#hasil-panen');
     const btnHitung = $('#btn-hitung');
+
+    if (selectKomoditas) {
+      selectKomoditas.addEventListener('change', updateKomoditasInfo);
+    }
 
     radioInputs.forEach(input => {
       input.addEventListener('change', function() {
         const pengairan = document.querySelector('input[name="pengairan"]:checked')?.value;
         const kadarDisplay = $('#kadar-zakat');
         if (kadarDisplay) kadarDisplay.textContent = pengairan === 'hujan' ? '10%' : '5%';
+        calcPertanian();
       });
     });
 
     if (panenInput) {
       panenInput.addEventListener('input', function() {
         formatInputNumber(this);
-        const panenDisplay = $('#total-panen');
-        if (panenDisplay) panenDisplay.textContent = `${parseNumber(this.value)} kg`;
+        calcPertanian();
       });
     }
 
     if (btnHitung) btnHitung.addEventListener('click', hitungPertanian);
   }
 
+  function updateKomoditasInfo() {
+    const komoditasId = $('#pilih-komoditas')?.value;
+    const infoGroup = $('#komoditas-info-group');
+
+    if (!komoditasId) {
+      if (infoGroup) infoGroup.style.display = 'none';
+      state.selectedKomoditas = null;
+      return;
+    }
+
+    const komoditas = state.komoditasList.find(k => k.id === komoditasId);
+    if (!komoditas) return;
+
+    state.selectedKomoditas = komoditas;
+
+    // Update UI
+    const iconEl = $('#komoditas-icon');
+    const namaEl = $('#komoditas-nama');
+    const ketEl = $('#komoditas-ket');
+    const hargaEl = $('#komoditas-harga');
+    const nisabEl = $('#komoditas-nisab');
+    const nisabPertanianEl = $('#nilai-nisab-pertanian');
+
+    if (iconEl) iconEl.textContent = komoditas.icon || '🌾';
+    if (namaEl) namaEl.textContent = komoditas.nama;
+    if (ketEl) ketEl.textContent = komoditas.keterangan || '';
+    if (hargaEl) hargaEl.textContent = formatRupiah(komoditas.harga_per_kg);
+    if (nisabEl) nisabEl.textContent = `${formatAngka(komoditas.nisab_kg)} kg`;
+    if (nisabPertanianEl) nisabPertanianEl.textContent = `${formatAngka(komoditas.nisab_kg)} kg`;
+
+    if (infoGroup) infoGroup.style.display = 'block';
+
+    calcPertanian();
+  }
+
+  function calcPertanian() {
+    const panen = parseNumber($('#hasil-panen')?.value);
+    const panenDisplay = $('#total-panen');
+    const estimasiDisplay = $('#estimasi-nilai');
+
+    if (panenDisplay) panenDisplay.textContent = `${formatAngka(panen)} kg`;
+
+    if (state.selectedKomoditas && panen > 0) {
+      const estimasi = panen * state.selectedKomoditas.harga_per_kg;
+      if (estimasiDisplay) estimasiDisplay.textContent = formatRupiah(estimasi);
+    } else {
+      if (estimasiDisplay) estimasiDisplay.textContent = 'Rp 0';
+    }
+  }
+
   function hitungPertanian() {
+    const komoditasId = $('#pilih-komoditas')?.value;
     const pengairan = document.querySelector('input[name="pengairan"]:checked')?.value;
     const panen = parseNumber($('#hasil-panen')?.value);
 
+    if (!komoditasId) return alert('Pilih jenis hasil pertanian terlebih dahulu');
     if (panen <= 0) return alert('Masukkan hasil panen yang valid');
 
+    const komoditas = state.komoditasList.find(k => k.id === komoditasId);
+    if (!komoditas) return alert('Data komoditas tidak ditemukan');
+
     const kadar = pengairan === 'hujan' ? 0.10 : 0.05;
-    const wajib = panen >= CONFIG.NISAB_PERTANIAN_KG;
-    const zakat = wajib ? panen * kadar : 0;
+    const nisab = komoditas.nisab_kg;
+    const wajib = panen >= nisab;
+    const zakatKg = wajib ? panen * kadar : 0;
+    const nilaiPanen = panen * komoditas.harga_per_kg;
+    const zakatRupiah = wajib ? zakatKg * komoditas.harga_per_kg : 0;
 
     showHasil(wajib, {
       items: [
-        { label: 'Hasil panen', value: `${panen} kg` },
-        { label: 'Nisab', value: `${CONFIG.NISAB_PERTANIAN_KG} kg` },
-        { label: 'Jenis pengairan', value: pengairan === 'hujan' ? 'Tadah hujan' : 'Irigasi berbayar' },
-        { label: 'Kadar zakat', value: `${kadar * 100}%` }
+        { label: 'Jenis', value: `${komoditas.icon} ${komoditas.nama}` },
+        { label: 'Hasil panen', value: `${formatAngka(panen)} kg` },
+        { label: 'Harga/kg', value: formatRupiah(komoditas.harga_per_kg) },
+        { label: 'Nilai panen', value: formatRupiah(nilaiPanen) },
+        { label: 'Nisab', value: `${formatAngka(nisab)} kg` },
+        { label: 'Jenis pengairan', value: pengairan === 'hujan' ? 'Tadah hujan (10%)' : 'Irigasi berbayar (5%)' }
       ],
-      zakat: `${zakat.toFixed(1)} kg`,
-      kekurangan: wajib ? null : `${CONFIG.NISAB_PERTANIAN_KG - panen} kg`
+      zakat: `${formatAngka(zakatKg)} kg`,
+      zakatAlt: `atau ${formatRupiah(zakatRupiah)}`,
+      kekurangan: wajib ? null : `${formatAngka(nisab - panen)} kg lagi`
     });
   }
 
-  // ===== PETERNAKAN =====
+  // ===== PETERNAKAN FUNCTIONS (UPDATED) =====
   function initFormPeternakan() {
     const selectTernak = $('#jenis-ternak');
     const jumlahInput = $('#jumlah-ternak');
     const btnHitung = $('#btn-hitung');
 
     if (selectTernak) {
-      selectTernak.addEventListener('change', function() {
-        const jenis = this.value;
-        const nisabInfo = NISAB_TERNAK[jenis];
-        const nisabDisplay = $('#nisab-ternak');
-        if (nisabDisplay) nisabDisplay.textContent = nisabInfo ? nisabInfo.label : '-';
-      });
+      selectTernak.addEventListener('change', updateTernakInfo);
     }
 
     if (jumlahInput) {
       jumlahInput.addEventListener('input', function() {
         formatInputNumber(this);
         const ternakDisplay = $('#total-ternak');
-        if (ternakDisplay) ternakDisplay.textContent = `${parseNumber(this.value)} ekor`;
+        if (ternakDisplay) ternakDisplay.textContent = `${formatAngka(parseNumber(this.value))} ekor`;
       });
     }
 
     if (btnHitung) btnHitung.addEventListener('click', hitungPeternakan);
   }
 
+  function updateTernakInfo() {
+    const jenis = $('#jenis-ternak')?.value;
+    const infoGroup = $('#ternak-info-group');
+    const nisabDisplay = $('#nisab-ternak');
+    const infoContent = $('#ternak-info-content');
+
+    if (!jenis) {
+      if (infoGroup) infoGroup.style.display = 'none';
+      if (nisabDisplay) nisabDisplay.textContent = '-';
+      return;
+    }
+
+    const nisabInfo = NISAB_TERNAK[jenis];
+    if (nisabDisplay) nisabDisplay.textContent = nisabInfo.label;
+
+    // Render tabel zakat
+    let tabelHTML = '';
+    if (jenis === 'kambing') {
+      tabelHTML = `
+        <div class="ternak-table">
+          <div class="ternak-table-row">
+            <span class="ternak-range">40-120 ekor</span>
+            <span class="ternak-zakat">1 ekor kambing betina (umur 1 thn)</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">121-200 ekor</span>
+            <span class="ternak-zakat">2 ekor kambing betina</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">201-300 ekor</span>
+            <span class="ternak-zakat">3 ekor kambing betina</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">301-400 ekor</span>
+            <span class="ternak-zakat">4 ekor kambing betina</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">401-500 ekor</span>
+            <span class="ternak-zakat">5 ekor kambing betina</span>
+          </div>
+          <div class="ternak-table-note">
+            <strong>Catatan:</strong> Setiap bertambah 100 ekor, zakat bertambah 1 ekor kambing betina umur 1 tahun.
+          </div>
+        </div>
+      `;
+    } else if (jenis === 'sapi') {
+      tabelHTML = `
+        <div class="ternak-table">
+          <div class="ternak-table-row">
+            <span class="ternak-range">30-39 ekor</span>
+            <span class="ternak-zakat">1 ekor tabi' (sapi umur 1 thn)</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">40-59 ekor</span>
+            <span class="ternak-zakat">1 ekor musinnah (sapi betina umur 2 thn)</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">60-69 ekor</span>
+            <span class="ternak-zakat">2 ekor tabi'</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">70-79 ekor</span>
+            <span class="ternak-zakat">1 tabi' + 1 musinnah</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">80-89 ekor</span>
+            <span class="ternak-zakat">2 ekor musinnah</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">90-99 ekor</span>
+            <span class="ternak-zakat">3 ekor tabi'</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">100-109 ekor</span>
+            <span class="ternak-zakat">1 tabi' + 2 musinnah</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">110-119 ekor</span>
+            <span class="ternak-zakat">2 tabi' + 1 musinnah</span>
+          </div>
+          <div class="ternak-table-note">
+            <strong>Catatan untuk 120+ ekor:</strong> Setiap 30 ekor = 1 tabi', setiap 40 ekor = 1 musinnah. Kombinasi yang paling optimal dipilih.
+          </div>
+        </div>
+      `;
+    } else if (jenis === 'unta') {
+      tabelHTML = `
+        <div class="ternak-table">
+          <div class="ternak-table-row">
+            <span class="ternak-range">5-9 ekor</span>
+            <span class="ternak-zakat">1 ekor kambing/domba</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">10-14 ekor</span>
+            <span class="ternak-zakat">2 ekor kambing/domba</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">15-19 ekor</span>
+            <span class="ternak-zakat">3 ekor kambing/domba</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">20-24 ekor</span>
+            <span class="ternak-zakat">4 ekor kambing/domba</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">25-35 ekor</span>
+            <span class="ternak-zakat">1 bintu makhad (unta betina 1 thn)</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">36-45 ekor</span>
+            <span class="ternak-zakat">1 bintu labun (unta betina 2 thn)</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">46-60 ekor</span>
+            <span class="ternak-zakat">1 hiqqah (unta betina 3 thn)</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">61-75 ekor</span>
+            <span class="ternak-zakat">1 jadz'ah (unta betina 4 thn)</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">76-90 ekor</span>
+            <span class="ternak-zakat">2 bintu labun</span>
+          </div>
+          <div class="ternak-table-row">
+            <span class="ternak-range">91-120 ekor</span>
+            <span class="ternak-zakat">2 hiqqah</span>
+          </div>
+        </div>
+      `;
+    }
+
+    if (infoContent) infoContent.innerHTML = tabelHTML;
+    if (infoGroup) infoGroup.style.display = 'block';
+  }
+
   function hitungPeternakan() {
     const jenis = $('#jenis-ternak')?.value;
-    const jumlah = parseNumber($('#jumlah-ternak')?.value);
+    const jumlah = Math.floor(parseNumber($('#jumlah-ternak')?.value));
 
     if (!jenis) return alert('Pilih jenis ternak terlebih dahulu');
     if (jumlah <= 0) return alert('Masukkan jumlah ternak yang valid');
 
     const nisabInfo = NISAB_TERNAK[jenis];
     const wajib = jumlah >= nisabInfo.nisab;
-    
-    let zakatText = '-';
-    if (wajib) {
-      let table;
-      if (jenis === 'kambing') table = ZAKAT_KAMBING;
-      else if (jenis === 'sapi') table = ZAKAT_SAPI;
-      else table = ZAKAT_UNTA;
 
-      const row = table.find(r => jumlah >= r.min && jumlah <= r.max);
-      if (row) {
-        zakatText = row.zakat;
-      } else {
-        zakatText = `Lihat tabel zakat ${jenis} untuk jumlah > ${table[table.length - 1].max}`;
+    let zakatText = '-';
+    let penjelasan = '';
+
+    if (wajib) {
+      if (jenis === 'kambing') {
+        const result = hitungZakatKambing(jumlah);
+        zakatText = result.text;
+        penjelasan = result.detail;
+      } else if (jenis === 'sapi') {
+        const result = hitungZakatSapi(jumlah);
+        zakatText = result.text;
+        penjelasan = result.detail;
+      } else if (jenis === 'unta') {
+        const result = hitungZakatUnta(jumlah);
+        zakatText = result.text;
+        penjelasan = result.detail;
       }
     }
 
+    const extraInfo = penjelasan ? `<div class="result-explanation">${penjelasan}</div>` : '';
+
     showHasil(wajib, {
       items: [
-        { label: 'Jenis ternak', value: jenis.charAt(0).toUpperCase() + jenis.slice(1) },
-        { label: 'Jumlah', value: `${jumlah} ekor` },
+        { label: 'Jenis ternak', value: nisabInfo.nama },
+        { label: 'Jumlah', value: `${formatAngka(jumlah)} ekor` },
         { label: 'Nisab', value: nisabInfo.label }
       ],
       zakat: zakatText,
+      extraInfo: extraInfo,
       kekurangan: wajib ? null : `${nisabInfo.nisab - jumlah} ekor lagi`
     });
+  }
+
+  // Fungsi hitung zakat kambing (untuk 500+ ekor)
+  function hitungZakatKambing(jumlah) {
+    // Cari di tabel dulu
+    const row = ZAKAT_KAMBING.find(r => jumlah >= r.min && jumlah <= r.max);
+    if (row) {
+      return {
+        text: `${row.jumlah} ekor kambing`,
+        detail: row.desc
+      };
+    }
+
+    // Untuk > 500 ekor: setiap 100 ekor = 1 kambing
+    const zakatCount = Math.floor(jumlah / 100);
+    return {
+      text: `${zakatCount} ekor kambing`,
+      detail: `${zakatCount} ekor kambing betina umur 1 tahun (atau domba betina umur 2 tahun). Dihitung dari ${formatAngka(jumlah)} ÷ 100 = ${zakatCount} ekor.`
+    };
+  }
+
+  // Fungsi hitung zakat sapi (untuk 120+ ekor)
+  function hitungZakatSapi(jumlah) {
+    // Cari di tabel dulu
+    const row = ZAKAT_SAPI.find(r => jumlah >= r.min && jumlah <= r.max);
+    if (row) {
+      return {
+        text: row.desc,
+        detail: `Berdasarkan tabel zakat sapi untuk ${formatAngka(jumlah)} ekor.`
+      };
+    }
+
+    // Untuk >= 120 ekor: kombinasi optimal dari kelipatan 30 (tabi') dan 40 (musinnah)
+    let bestTabi = 0;
+    let bestMusinnah = 0;
+    let minRemainder = jumlah;
+
+    // Coba berbagai kombinasi
+    for (let musinnah = 0; musinnah <= Math.floor(jumlah / 40); musinnah++) {
+      const sisaSetelahMusinnah = jumlah - (musinnah * 40);
+      if (sisaSetelahMusinnah >= 0 && sisaSetelahMusinnah % 30 === 0) {
+        const tabi = sisaSetelahMusinnah / 30;
+        const remainder = 0;
+        if (remainder < minRemainder) {
+          minRemainder = remainder;
+          bestTabi = tabi;
+          bestMusinnah = musinnah;
+        }
+      }
+    }
+
+    // Jika tidak ada kombinasi sempurna, hitung dengan sisa
+    if (minRemainder > 0) {
+      bestMusinnah = Math.floor(jumlah / 40);
+      const sisa = jumlah - (bestMusinnah * 40);
+      bestTabi = Math.floor(sisa / 30);
+    }
+
+    let text = '';
+    if (bestTabi > 0 && bestMusinnah > 0) {
+      text = `${bestTabi} ekor tabi' + ${bestMusinnah} ekor musinnah`;
+    } else if (bestTabi > 0) {
+      text = `${bestTabi} ekor tabi'`;
+    } else if (bestMusinnah > 0) {
+      text = `${bestMusinnah} ekor musinnah`;
+    }
+
+    const detail = `Untuk ${formatAngka(jumlah)} ekor sapi: ${text}. <br><small>Tabi' = sapi umur 1 tahun. Musinnah = sapi betina umur 2 tahun.</small>`;
+
+    return { text, detail };
+  }
+
+  // Fungsi hitung zakat unta
+  function hitungZakatUnta(jumlah) {
+    const row = ZAKAT_UNTA.find(r => jumlah >= r.min && jumlah <= r.max);
+    if (row) {
+      return {
+        text: row.desc,
+        detail: `Berdasarkan tabel zakat unta untuk ${formatAngka(jumlah)} ekor.`
+      };
+    }
+
+    // Untuk > 120 ekor
+    return {
+      text: `Perhitungan khusus diperlukan`,
+      detail: `Untuk ${formatAngka(jumlah)} ekor unta (>120), diperlukan perhitungan dengan kombinasi hiqqah dan jadz'ah. Silakan konsultasi dengan ulama setempat.`
+    };
   }
 
   // ===== MOBILE NAV =====
@@ -1248,6 +1623,8 @@
     
     if (toggle && nav) {
       toggle.addEventListener('click', function() {
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !isExpanded);
         nav.classList.toggle('active');
       });
     }
@@ -1256,15 +1633,15 @@
   // ===== INIT =====
   async function init() {
     console.log('🚀 Kalkulator Zakat - Memulai...');
-    
+
     // Cache DOM elements
     modalEl = $('#calculator-modal');
     modalTitleEl = $('#modal-title');
     modalBodyEl = $('#modal-body');
-    
+
     // Init mobile nav
     initMobileNav();
-    
+
     // Setup modal close handlers
     const closeBtn = $('#close-modal-btn');
     if (closeBtn) {
@@ -1297,18 +1674,27 @@
         }
       });
     });
-    
+
     // Fetch harga emas
     const result = await fetchHargaEmas();
     state.hargaEmas = result.price;
-    state.hargaPerak = Math.round(result.price / 100);
+    state.hargaPerak = Math.round(result.price / 80); // Fix rasio 1:80
     state.nisab = state.hargaEmas * CONFIG.NISAB_EMAS_GRAM;
     state.isLive = result.isLive;
-    
+
+    // Fetch komoditas pertanian
+    await fetchKomoditasPrices();
+
     renderNisabBar();
-    
+
     console.log('✅ Kalkulator Zakat - Siap!');
-    console.log('State:', state);
+    console.log('📊 State:', {
+      hargaEmas: formatRupiah(state.hargaEmas),
+      hargaPerak: formatRupiah(state.hargaPerak),
+      nisab: formatRupiah(state.nisab),
+      komoditasCount: state.komoditasList.length,
+      isLive: state.isLive
+    });
   }
 
   // Start when DOM ready
