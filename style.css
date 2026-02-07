@@ -4033,3 +4033,44 @@ a {
     margin: 0 12px;
   }
 }
+/* Badge Verifikasi & Kredibilitas */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--accent-emerald-muted);
+  color: var(--accent-emerald);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-credibility-info {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--surface-1);
+  border-left: 4px solid var(--accent-gold);
+  border-radius: 4px;
+}
+
+.btn-share-wa {
+  background: #25d366;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  transition: opacity 0.2s;
+}
+
+.btn-share-wa:hover {
+  opacity: 0.9;
+}
