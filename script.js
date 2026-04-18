@@ -6,7 +6,7 @@
 const CONFIG = {
   SUPABASE_URL: 'https://ynsyiesajoggykqybqsn.supabase.co',
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inluc3lpZXNham9nZ3lrcXlicXNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0MzUzMTIsImV4cCI6MjA4NDAxMTMxMn0.HhTn3wclE5DRdfEpynl2YFI2O8_qO7cUSZ4jrezXFbQ',
-  GOLDAPI_KEY: 'goldapi-13qujjslsmkjctt1w-io',
+  GOLDAPI_KEY: 'goldapi-dl74xsmo3xsw5h-io',
   KURS_USD_IDR: 16200,
   NISAB_GRAM: 85,
   FALLBACK: {
