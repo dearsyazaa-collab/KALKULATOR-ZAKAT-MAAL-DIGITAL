@@ -1198,8 +1198,7 @@
     const harga = state.cryptoPrices[symbol] || 0;
     if (harga <= 0) return alert('Harga crypto belum tersedia');
 
-    const total = jumlah
-        total = jumlah * harga;
+    const total = jumlah * harga;
     const wajib = total >= state.nisab;
     const zakat = wajib ? total * 0.025 : 0;
 
