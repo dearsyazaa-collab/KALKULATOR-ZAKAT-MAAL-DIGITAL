@@ -48,8 +48,8 @@ function formatRupiah(angka) {
 }
 
 function formatTime(date) {
-  return date.toLocaleTimeString('id-ID', { 
-    hour: '2-digit', 
+  return date.toLocaleTimeString('id-ID', {
+    hour: '2-digit',
     minute: '2-digit'
   });
 }
@@ -70,7 +70,7 @@ function $(selector) {
 // ===== FETCH HARGA EMAS =====
 async function fetchHargaEmas() {
   console.log('📊 Mengambil harga emas...');
-  
+
   try {
     const response = await fetch('https://www.goldapi.io/api/XAU/USD', {
       method: 'GET',
@@ -85,20 +85,20 @@ async function fetchHargaEmas() {
     }
 
     const data = await response.json();
-    
+
     let pricePerGram = data.price_gram_24k;
     if (!pricePerGram && data.price) {
       pricePerGram = data.price / 31.1035;
     }
-    
+
     if (pricePerGram && !isNaN(pricePerGram)) {
       const hargaIDR = Math.round(pricePerGram * CONFIG.KURS_USD_IDR);
       console.log(`✅ Harga emas dari API: ${formatRupiah(hargaIDR)}/gram`);
       return { price: hargaIDR, isLive: true };
     }
-    
+
     throw new Error('Data tidak valid');
-    
+
   } catch (error) {
     console.warn('⚠️ GoldAPI gagal:', error.message);
     console.log(`📌 Menggunakan harga fallback: ${formatRupiah(CONFIG.FALLBACK.emas)}`);
@@ -109,7 +109,7 @@ async function fetchHargaEmas() {
 // ===== FETCH HARGA CRYPTO =====
 async function fetchHargaCrypto() {
   console.log('🪙 Mengambil harga cryptocurrency...');
-  
+
   try {
     const ids = CRYPTO_LIST.map(c => c.id).join(',');
     const response = await fetch(
@@ -144,7 +144,7 @@ async function fetchHargaCrypto() {
 // ===== FETCH HARGA SAHAM (EDGE FUNCTION) =====
 async function fetchHargaSaham(stockCode) {
   console.log(`📈 Mengambil harga saham ${stockCode}...`);
-  
+
   try {
     const response = await fetch(
       `${CONFIG.SUPABASE_URL}/functions/v1/stock-price`,
@@ -164,12 +164,12 @@ async function fetchHargaSaham(stockCode) {
     }
 
     const data = await response.json();
-    
+
     if (data && data.price && typeof data.price === 'number' && data.price > 0) {
       console.log(`✅ Harga ${stockCode}: ${formatRupiah(data.price)}`);
       return { price: data.price, isLive: true };
     }
-    
+
     throw new Error('Data harga tidak valid');
 
   } catch (error) {
@@ -180,9 +180,9 @@ async function fetchHargaSaham(stockCode) {
 
 async function fetchAllStockPrices() {
   console.log('📈 Mengambil semua harga saham IDX...');
-  
+
   const prices = {};
-  
+
   // Fetch semua saham secara paralel
   const results = await Promise.all(
     STOCK_LIST.map(async (stock) => {
@@ -190,7 +190,7 @@ async function fetchAllStockPrices() {
       return { code: stock.code, ...result };
     })
   );
-  
+
   results.forEach(result => {
     if (result.price) {
       prices[result.code] = {
@@ -199,34 +199,34 @@ async function fetchAllStockPrices() {
       };
     }
   });
-  
+
   const successCount = Object.keys(prices).length;
   console.log(`✅ Berhasil mengambil ${successCount}/${STOCK_LIST.length} harga saham`);
-  
+
   return prices;
 }
 
 // ===== RENDER FUNCTIONS =====
 function renderNisabCard(hargaEmas, isLive = true) {
   const nisab = hargaEmas * CONFIG.NISAB_GRAM;
-  
+
   const nisabEl = $('#nisab-rupiah');
   if (nisabEl) {
     nisabEl.textContent = formatRupiah(nisab);
     nisabEl.classList.add('loaded');
   }
-  
+
   const emasEl = $('#harga-emas');
   if (emasEl) {
     emasEl.textContent = formatRupiah(hargaEmas);
   }
-  
+
   const updateEl = $('#tanggal-update');
   if (updateEl) {
     const now = new Date();
     updateEl.textContent = `${formatDate(now)}, ${formatTime(now)}`;
   }
-  
+
   const liveEl = $('#live-status');
   if (liveEl) {
     if (!isLive) {
@@ -244,12 +244,12 @@ function renderNisabCard(hargaEmas, isLive = true) {
 function renderMetalCards(hargaEmas, hargaPerak) {
   const emasDisplay = $('#display-emas');
   const perakDisplay = $('#display-perak');
-  
+
   if (emasDisplay) {
     emasDisplay.textContent = formatRupiah(hargaEmas);
     emasDisplay.classList.remove('loading');
   }
-  
+
   if (perakDisplay) {
     perakDisplay.textContent = formatRupiah(hargaPerak);
     perakDisplay.classList.remove('loading');
@@ -259,9 +259,9 @@ function renderMetalCards(hargaEmas, hargaPerak) {
 function renderCryptoGrid(prices) {
   const grid = $('#crypto-grid');
   if (!grid) return;
-  
+
   grid.innerHTML = '';
-  
+
   if (Object.keys(prices).length === 0) {
     grid.innerHTML = `
       <div class="price-card error-card">
@@ -271,11 +271,11 @@ function renderCryptoGrid(prices) {
     `;
     return;
   }
-  
+
   CRYPTO_LIST.forEach(crypto => {
     const data = prices[crypto.symbol];
     if (!data) return;
-    
+
     const card = document.createElement('div');
     card.className = 'price-card';
     card.innerHTML = `
@@ -295,14 +295,14 @@ function renderCryptoGrid(prices) {
 function renderStockGrid(prices) {
   const grid = $('#stock-grid');
   if (!grid) return;
-  
+
   grid.innerHTML = '';
-  
+
   STOCK_LIST.forEach(stock => {
     const data = prices[stock.code];
     const card = document.createElement('div');
     card.className = 'price-card';
-    
+
     if (data && data.price) {
       card.innerHTML = `
         <div class="price-card-header">
@@ -327,7 +327,7 @@ function renderStockGrid(prices) {
         <div class="price-value error">Gagal memuat</div>
       `;
     }
-    
+
     grid.appendChild(card);
   });
 }
@@ -335,9 +335,9 @@ function renderStockGrid(prices) {
 function renderStockGridLoading() {
   const grid = $('#stock-grid');
   if (!grid) return;
-  
+
   grid.innerHTML = '';
-  
+
   STOCK_LIST.forEach(stock => {
     const card = document.createElement('div');
     card.className = 'price-card';
@@ -358,9 +358,9 @@ function renderStockGridLoading() {
 function renderCryptoGridLoading() {
   const grid = $('#crypto-grid');
   if (!grid) return;
-  
+
   grid.innerHTML = '';
-  
+
   CRYPTO_LIST.forEach(crypto => {
     const card = document.createElement('div');
     card.className = 'price-card';
@@ -381,9 +381,9 @@ function renderCryptoGridLoading() {
 function updateMarketStatus(status) {
   const badge = $('#market-status');
   if (!badge) return;
-  
+
   badge.classList.remove('success', 'warning', 'error');
-  
+
   switch (status) {
     case 'loading':
       badge.textContent = 'Memuat data...';
@@ -407,7 +407,7 @@ function updateMarketStatus(status) {
 function initMobileNav() {
   const toggle = $('#nav-toggle');
   const nav = $('#main-nav');
-  
+
   if (toggle && nav) {
     toggle.addEventListener('click', () => {
       nav.classList.toggle('active');
@@ -418,43 +418,43 @@ function initMobileNav() {
 // ===== MAIN INITIALIZATION =====
 async function init() {
   console.log('🚀 ZakatCalc - Memulai...');
-  
+
   // Init mobile nav
   initMobileNav();
-  
+
   // Tampilkan loading state
   updateMarketStatus('loading');
   renderCryptoGridLoading();
   renderStockGridLoading();
-  
+
   try {
     // Fetch emas & crypto dulu (lebih cepat)
     const [emasResult, cryptoPrices] = await Promise.all([
       fetchHargaEmas(),
       fetchHargaCrypto()
     ]);
-    
+
     // Update state
     state.hargaEmas = emasResult.price;
     state.hargaPerak = Math.round(emasResult.price / 100);
     state.cryptoPrices = cryptoPrices;
-    
+
     // Render emas & crypto
     renderNisabCard(emasResult.price, emasResult.isLive);
     renderMetalCards(emasResult.price, state.hargaPerak);
     renderCryptoGrid(cryptoPrices);
-    
+
     // Fetch saham (mungkin lebih lama)
     const stockPrices = await fetchAllStockPrices();
     state.stockPrices = stockPrices;
-    
+
     // Render saham
     renderStockGrid(stockPrices);
-    
+
     // Update status
     const cryptoSuccess = Object.keys(cryptoPrices).length > 0;
     const stockSuccess = Object.keys(stockPrices).length > 0;
-    
+
     if (emasResult.isLive && cryptoSuccess && stockSuccess) {
       updateMarketStatus('success');
     } else if (emasResult.isLive || cryptoSuccess || stockSuccess) {
@@ -462,10 +462,10 @@ async function init() {
     } else {
       updateMarketStatus('error');
     }
-    
+
     state.isLoaded = true;
     console.log('✅ ZakatCalc - Selesai dimuat!');
-    
+
   } catch (error) {
     console.error('❌ Error saat memuat data:', error);
     updateMarketStatus('error');
